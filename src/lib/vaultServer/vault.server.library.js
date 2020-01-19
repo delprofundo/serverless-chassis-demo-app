@@ -63,6 +63,11 @@ const SESSION_VARIABLES = {
   SESSION_TOKEN_LENGTH: 128,
 };
 
+const MASK_SCHEMES = {
+  ONE_TWO: "ONE_TWO",
+  FOUR_THREE: "FOUR_THREE"
+};
+
 export const processRequestInstrumentSession = async ( requestAssembly, queue ) => {
   const assembly = unstring( requestAssembly );
   const sessionToken = randString.generate( SESSION_VARIABLES.SESSION_TOKEN_LENGTH );
@@ -192,13 +197,12 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 }; // end processNewInstrumentSession
 
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
-  const { instrumentId, payerId, cardNumber, cardMaskScheme } = incomingInstrument;
+  const { instrumentId, payerId, cardNumber } = incomingInstrument;
   logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  logger.info("KEE : ", CC_SIGNING_KEY );
   const ev = {
     ...incomingInstrument,
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
-    maskedCardNumber: maskIdentifier( cardNumber, cardMaskScheme ),
+    maskedCardNumber: maskIdentifier( cardNumber, MASK_SCHEMES.FOUR_THREE ),
     hashKey: payerId,
     rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`
   };
