@@ -52,7 +52,7 @@ const validate = ( schema, object ) => {
   const { error, value } = schema.validate( object, { stripUnknown: true } );
   if( error ) {
     console.log( "the error ", error );
-    return error
+    return new Error( error.details[0].message );
   }
   return value;
 }; // end validate
