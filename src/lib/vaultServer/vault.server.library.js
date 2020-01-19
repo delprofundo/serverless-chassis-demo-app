@@ -194,7 +194,7 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const { instrumentId, payerId, cardNumber, cardMaskScheme } = incomingInstrument;
   logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-
+  logger.info("KEE : ", CC_SIGNING_KEY );
   const ev = {
     ...incomingInstrument,
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
