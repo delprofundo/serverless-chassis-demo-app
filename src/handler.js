@@ -4,7 +4,14 @@
  * bruno@hypermedia.tech
  * @module vault/ServiceHandler
  */
+const { DEPLOY_REGION } = process.env;
+
 const logger = require("log-winston-aws-level");
+const AWSXRay = require("aws-xray-sdk-core");
+const AWS = AWSXRay.captureAWS(require("aws-sdk"));
+AWS.config.update({ region: DEPLOY_REGION });
+const util = require( "./lib/util.server.library" );
+
 import {
   processRequestInstrumentSession,
   processSubmitInstrumentSession,
@@ -21,13 +28,7 @@ import { unstring } from "./lib/awsHelpers/general.helper.library";
 
 import { validateSessionRequest } from "./lib/vaultServer/vault.schema"
 
-const { DEPLOY_REGION } = process.env;
-
 //ADD LIB's HERE
-
-const AWSXRay = require("aws-xray-sdk-core");
-const AWS = AWSXRay.captureAWS(require("aws-sdk"));
-const util = require( "./lib/util.server.library" );
 //declare the DB here and inject it to all calls that require it
 const db = new AWS.DynamoDB.DocumentClient();
 const queue = new AWS.SQS();
