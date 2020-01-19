@@ -36,7 +36,7 @@ const inboundCreditCardSchema = Joi.object({
 });
 
 const creditCardSchema = Joi.object({
-  //instrumentId: Joi.string().guid({version: 'uuidv4'}).required(),
+  instrumentId: Joi.string().guid({version: 'uuidv4'}).required(),
   instrumentType: Joi.string().valid( ...Object.values( INSTRUMENT_TYPES )).required(),
   cardholderName: Joi.string().min( 5 ).max( 120 ).required(),
   cardExpiry: Joi.string().max( 4 ).min( 4 ).regex(/^\d+$/).required(),
