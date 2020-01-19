@@ -50,11 +50,14 @@ const creditCardSchema = Joi.object({
 });
 
 const validate = ( schema, object ) => {
+  logger.info("in validate");
   const { error, value } = schema.validate( object, { stripUnknown: true } );
+  logger.info("dun vald" );
   if( error ) {
     console.log( "the error ", error );
     return error
   }
+  logger.info("retunrng value");
   return value;
 }; // end validate
 
@@ -63,6 +66,7 @@ export const validateInboundCreditCard = ( object ) => {
 };
 
 export const validateStoredCreditCard = ( object ) => {
+  logger.info( "in val stored cc", object );
   return validate( creditCardSchema, object )
 };
 
