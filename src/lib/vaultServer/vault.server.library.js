@@ -198,17 +198,18 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const { instrumentId, payerId, cardNumber } = incomingInstrument;
   logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  const ev = {
+  const inboundRecord = {
     ...incomingInstrument,
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
     maskedCardNumber: maskIdentifier( cardNumber, MASK_SCHEMES.FOUR_THREE ),
-    hashKey: payerId,
-    rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`
   };
   let instrument;
   try {
-    logger.info( "ev : ", ev );
-    instrument = validateStoredCreditCard( ev );
+    instrument = {
+      ...validateStoredCreditCard( inboundRecord ),
+      hashKey: payerId,
+      rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
+    };
     console.log("INSTRUMENTeD :", instrument );
   } catch ( err ) {
     logger.error( "error : in val ", err );
