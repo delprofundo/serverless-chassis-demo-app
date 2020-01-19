@@ -209,6 +209,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   try {
     logger.info( "ev : ", ev );
     instrument = validateStoredCreditCard( ev );
+    console.log("INSTRUMENTeD :", instrument );
   } catch ( err ) {
     logger.error( "error : in val ", err );
   }

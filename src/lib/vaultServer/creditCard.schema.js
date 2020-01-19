@@ -66,5 +66,6 @@ export const validateStoredCreditCard = ( object ) => {
 };
 
 export const creditCardMetadata = {
-  INSTRUMENT_TYPES
+  INSTRUMENT_TYPES,
+  CC_MASK_SCHEMES
 };
