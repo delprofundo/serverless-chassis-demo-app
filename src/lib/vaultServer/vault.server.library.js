@@ -193,7 +193,7 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const { instrumentId, payerId, cardNumber, cardMaskScheme } = incomingInstrument;
-  logger.info ( "inside processAppendInstrumentSession", incomingInstrument );
+  logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
   const instrument = validateStoredCreditCard({
     ...incomingInstrument,
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
