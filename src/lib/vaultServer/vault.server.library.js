@@ -201,7 +201,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
     hashKey: payerId,
     rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`
   });
-  logger.info("parsed and persistable", instrument );
+  logger.info("parsed and can persist", instrument );
   try {
     const putResponse = await db.put({
       TableName: SERVICE_TABLE,
