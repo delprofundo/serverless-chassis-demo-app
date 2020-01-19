@@ -3,8 +3,7 @@ const Joi = require("@hapi/joi");
 const validate = ( schema, object, strip = true ) => {
   const { error, value } = schema.validate( object, { stripUnknown: strip } );
   if( error ) {
-    console.log( "the error ", error );
-    return undefined
+    throw new Error( error.details[0].message );
   }
   return value;
 }; // end validate

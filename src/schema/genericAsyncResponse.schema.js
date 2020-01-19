@@ -8,13 +8,10 @@ const RESULTS = {
 };
 
 const validate = ( schema, object, strip = true ) => {
-  logger.info( "ASV")
-  const { error, value } = schema.validate( object, { stripUnknown: strip });
+  const { error, value } = schema.validate( object, { stripUnknown: strip } );
   if( error ) {
-    logger.error( "error validating GAR object" );
-    return error;
+    throw new Error( error.details[0].message );
   }
-  logger.info("BNM", value);
   return value;
 }; // end validate
 
