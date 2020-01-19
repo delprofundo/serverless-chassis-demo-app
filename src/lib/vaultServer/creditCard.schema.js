@@ -48,11 +48,10 @@ const creditCardSchema = Joi.object({
   payerId: Joi.string().guid({version: 'uuidv4'}),
 });
 
-const validate = ( schema, object ) => {
-  const { error, value } = schema.validate( object, { stripUnknown: true } );
+const validate = ( schema, object, strip = true ) => {
+  const { error, value } = schema.validate( object, { stripUnknown: strip } );
   if( error ) {
-    console.log( "the error ", error );
-    return new Error( error.details[0].message );
+    throw new Error( error.details[0].message );
   }
   return value;
 }; // end validate
