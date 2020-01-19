@@ -1,0 +1,166 @@
+service: vault-service
+frameworkVersion:  ">=1.61.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  tracing: true
+  stage: ${opt:stage, self:custom.defaultStage}
+  memorySize: 256
+  timeout: 20
+  logRetentionInDays: 7
+  stackTags:
+    Name: ${self:service.name}
+    ProjectCode: ${self:custom.projectCode}
+  environment:
+    DEPLOY_REGION: ${opt:region, self:provider.region}
+    API_ROOT: ${self:custom.domainName}
+    SHARED_SERVICE_BUS: ${self:custom.sharedServiceBus}
+    CC_SIGNING_KEY: ${self:custom.ccSigningKey}
+    SERVICE_QUEUE:
+      Ref: ServiceIngressQueue
+    SERVICE_TABLE:
+      Ref: ServiceTable
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - lambda:InvokeAsync
+        - cognito-idp:Admin*
+        - xray:PutTelemetryRecords
+        - xray:PutTraceSegments
+        - sqs:SendMessage
+      Resource: "*"
+#    - Effect: Allow
+#      Action:
+#        - kinesis:PutRecord
+#        - kinesis:PutRecords
+#        - kinesis:GetRecords
+#        - kinesis:GetShardIterator
+#        - kinesis:DescribeStream
+#        - kinesis:ListStreams
+#      Resource: ${self:custom.sharedServiceBusARN}
+package:
+  include:
+    - configurators
+    - lib
+  exclude:
+    - tmp
+    - .git
+    - .idea
+    - support
+plugins:
+  - serverless-plugin-tracing
+  - serverless-webpack
+  - serverless-plugin-bind-deployment-id
+  - serverless-pseudo-parameters
+custom:
+  #warmup:
+  #  cleanFolders: false
+  local: ${file(./environmentSpecific.yml)} #a file for deployment specific values, can be supplied by Param Store
+  webpackIncludeModules: true
+  grub: vault-api
+  defaultStage: dev
+  basePath: vault
+  ccSigningKey: ${self:custom.local.ccSigningKey}
+  domainName: ${self:custom.local.customDomainName}
+  sharedServiceBus: ${self:custom.local.sharedServiceBus}
+  sharedServiceBusARN: ${self:custom.local.sharedServiceBusARN}
+  projectCode: ${self:custom.local.projectCode}
+  #honeycombAPIKey: ${self:custom.local.honeycombAPIKey}
+  #honeycombDataset: ${self:custom.local.honeycombDataset}
+  profiles:
+    dev: default
+  regions:
+    dev: us-east-1
+    uat: us-east-1
+    prod: ap-southeast-2
+functions:
+#  authorize:
+#    name: ${self:provider.stage}-${self:custom.grub}-authorize
+#    handler: src/sec/authorize.handler
+#    description: must use US spelling for authorize function.
+  requestInstrumentSession:
+    handler: src/handler.requestInstrumentSession
+    name: ${self:provider.stage}-${self:custom.grub}-requestInstrumentSession
+    description: request a vault capture session to be initiated for a given payer (move to user service)
+    events:
+      - http:
+          path: /instruments
+          method: post
+          cors: true
+  appendInstrumentSession:
+    handler: src/handler.appendInstrumentSession
+    name: ${self:provider.stage}-${self:custom.grub}-appendInstrumentSession
+    description: append instrument data to an active vault session
+    events:
+      - http:
+          path: /instruments/{sessionToken}
+          method: put
+          cors: true
+  submitInstrumentSession:
+    handler: src/handler.submitInstrumentSession
+    name: ${self:provider.stage}-${self:custom.grub}-submitInstrumentSession
+    description: takes card data from instrument session, parses and forwards
+    events:
+      - http:
+          path: /instruments/{sessionToken}/submitt
+          method: put
+          cors: true
+  serviceQueueHandler:
+    handler: src/handler.serviceQueueHandler
+    name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
+    description: generic queue to handle unsafe inbound requests (put, post)
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ ServiceIngressQueue, Arn ]
+#  serviceTableStreamHandler:
+#    handler: src/handler.serviceTableStreamHandler
+#    name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
+#    description: processes messages that cross the ingress queue.
+#    events:
+#      - stream:
+#          arn:
+#            Fn::GetAtt: [ ServiceTable, Arn ]
+#          enabled: true
+#          type: dynamodb
+#  sharedServiceBusEventHandler:
+#    handler: src/handler.sharedServiceBusEventHandler
+#    name: ${self:provider.stage}-${self:custom.grub}-sharedServiceBusEventHandler
+#    description: process messages from the application's shared service bus
+#    events:
+#      - stream:
+#          arn: ${self:custom.sharedServiceBusARN}
+#          batchSize: 20
+#          startingPosition: TRIM_HORIZON
+#          enabled: false
+  pingService:
+    handler: src/handler.ping
+    name: ${self:provider.stage}-${self:custom.grub}-ping
+    description: a simple payload ping GET test
+    events:
+    - http:
+        path: /ping
+        method: get
+        cors: true
+  echoService:
+    handler: src/handler.echo
+    name: ${ self:provider.stage}-${self:custom.grub}-echo
+    description: a simple payload echo POST test
+    events:
+    - http:
+        path: /echo
+        method: post
+        cors: true
+resources:
+  Resources:
+    __deployment__:
+      Properties:
+        Description: Deployment alias for resources that depend on deployment id
+    ApiGatewayStage: ${file(configurators/apiGatewayStage.yaml)}
+    IamPolicyLambdaDynamo: ${file(configurators/iamPolicyLambdaDynamo.yaml)}
+    PathMapping: ${file(configurators/pathMapping.yaml)}
+    ServiceTable: ${file(configurators/serviceTable.yaml)}
+#    ServiceTableEventSourceMapping: ${file(configurators/serviceTableEventSourceMapping.yaml)}
+    ServiceIngressQueue: ${file(configurators/serviceIngressQueue.yaml)}

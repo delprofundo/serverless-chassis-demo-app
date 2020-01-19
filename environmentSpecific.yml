@@ -1,0 +1,5 @@
+customDomainName: ${ssm:/gbank/api/url}
+projectCode: ${ssm:/gbank/api/projectCode}
+sharedServiceBus: ${ssm:/gbank/api/bus/address~true}
+sharedServiceBusARN: ${ssm:/gbank/api/bus/arn~true}
+ccSigningKey: ${ssm:/gbank/vault/signing~true}

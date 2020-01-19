@@ -1,0 +1,15 @@
+---
+
+Type: AWS::Lambda::EventSourceMapping
+Properties:
+  BatchSize: 1
+  EventSourceArn:
+    Fn::GetAtt: [ ServiceTable, StreamArn ]
+  FunctionName:
+    Fn::GetAtt:
+      - ServiceTableStreamHandlerLambdaFunction
+      - Arn
+  StartingPosition: TRIM_HORIZON
+DependsOn:
+  - ServiceTableStreamHandlerLambdaFunction
+  - IamPolicyLambdaDynamo

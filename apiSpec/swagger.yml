@@ -1,0 +1,591 @@
+---
+
+openapi: 3.0.0
+servers:
+  - description: BW_DEV (no data)
+    url: https://api.vault.groklobster.io
+    variables:
+      scheme:
+        description: available only by https
+        enum:
+          - https
+        default: https
+  - description: BW_DEV_SOCKET
+    url: wss://ws.vault.groklobster.io
+info:
+  description: this is the GENERIC CARD VAULT specification
+  version: "1.0.0"
+  title: GCARD - API specification
+  contact:
+    name: hypermedia tech product support
+    email: support@hypermedia.tech
+tags:
+  - name: vault session
+    description: endpoints relating to session vault functionality.
+  - name: vault instrument
+    description: endpoints relating to instrument vault functionality.
+security:
+  - bearereAuth: []
+paths:
+  /vault/form/sessions:
+    post:
+      tags:
+        - vault session
+      summary: request a form capture session to be initiated for a given payer
+      operationId: requestCaptureSession
+      description: NOTE probably this just happens in the instrument svc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VaultSessionRequest"
+      responses:
+        200:
+          description: |
+            success requesting a vault session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/sessions/{sessionToken}:
+    put:
+      tags:
+        - vault session
+      summary: append data to an active capture session
+      operationId: appendCaptureSession
+      parameters:
+        - name: sessionToken
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentStatePayload'
+      responses:
+        200:
+          description: |
+            success requesting a vault session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAsyncResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/sessions/{sessionToken}/submit:
+    put:
+      tags:
+        - vault session
+      summary: endpoint to submit a payment request with the captured data
+      operationId: submitCaptureSession
+      parameters:
+        - name: sessionToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: |
+            success submitting transaction against session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAsyncResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/instruments:
+    post:
+      tags:
+        - vault instrument
+      summary: request a vault capture session to be initiated for a given payer
+      operationId: requestInstrumentSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VaultSessionRequest"
+      responses:
+        200:
+          description: |
+            success requesting a vault session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/instruments/{sessionToken}:
+    put:
+      tags:
+        - vault instrument
+      summary: append instrument data to an active vault session
+      operationId: appendInstrumentSession
+      parameters:
+        - name: sessionToken
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentStateSubmission'
+      responses:
+        200:
+          description: |
+            success requesting a vault session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAsyncResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/instruments/{sessionToken}/submit:
+    put:
+      tags:
+        - vault instrument
+      summary: takes card data from instrument session, parses and forwards
+      operationId: submitInstrumentSession
+      parameters:
+        - name: sessionToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: |
+            success requesting session submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAsyncResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/ping:
+    get:
+      tags:
+        - vault instrument
+        - vault session
+      summary: simple ping endpoint returns a pong
+      operationId: pingService
+      responses:
+        200:
+          description: |
+            successfully pinged vault service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PongResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /vault/echo:
+    post:
+      tags:
+        - vault instrument
+        - vault session
+      summary: simple echo endpoint returns same payload
+      operationId: echoService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchoRequest'
+      responses:
+        200:
+          description: |
+            successfully requested echo response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchoResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWE
+  schemas:
+    AppError:
+      type: object
+      required:
+        - type
+        - message
+        - statusCode
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        message:
+          type: string
+        statusCode:
+          $ref: "#/components/schemas/StatusCodeEnum"
+    GenericAsyncResponse:
+      type: object
+      description: |
+        this record is returned when an unsafe request is made that is not immediately fulfilled.
+        the payload will be parsed to check the
+      properties:
+        result:
+          type: string
+          enum:
+            - OK
+            - ERROR
+        resourceId:
+          type: string
+          format: uuid
+        resourceType:
+          $ref: '#/components/schemas/ResourceTypeEnum'
+    VaultSessionSubmission:
+      type: object
+      properties:
+        instrumentType:
+          $ref: '#/components/schemas/InstrumentTypeEnum'
+        cardNumber:
+          type: string
+        maskScheme:
+          $ref: '#/components/schemas/CardMaskSchemeEnum'
+        cardExpiryDate:
+          type: string
+        cardScheme:
+          $ref: "#/components/schemas/CardSchemeEnum"
+        cardHolderName:
+          type: string
+        cardCountry:
+          type: string
+          format: country-code
+    EchoRequest:
+      type: object
+    EchoResponse:
+      type: object
+    InstrumentStateSubmission:
+      type: object
+      properties:
+        instrumentType:
+          $ref: '#/components/schemas/InstrumentTypeEnum'
+        maskedCardNumber:
+          type: string
+        maskScheme:
+          $ref: '#/components/schemas/CardMaskSchemeEnum'
+        cardCCV:
+          type: string
+          format: ccv
+        cardExpiryDate:
+          type: string
+        cardScheme:
+          $ref: "#/components/schemas/CardSchemeEnum"
+        cardHolderName:
+          type: string
+        cardCountry:
+          type: string
+          format: country-code
+    InstrumentStatePayload:
+      type: object
+      properties:
+        sessionExpiry:
+          type: number
+          format: epoch
+        instrumentType:
+          $ref: '#/components/schemas/InstrumentTypeEnum'
+        maskedCardNumber:
+          type: string
+        maskScheme:
+          $ref: '#/components/schemas/CardMaskSchemeEnum'
+        cardCCV:
+          type: string
+          format: ccv
+        cardExpiryDate:
+          type: string
+        cardScheme:
+          $ref: "#/components/schemas/CardSchemeEnum"
+        cardHolderName:
+          type: string
+        cardCountry:
+          type: string
+          format: country-code
+    PongResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - PONG
+    SessionTokenResponse:
+      type: object
+      required:
+        - sessionToken
+      properties:
+        sessionToken:
+          type: string
+    VaultSessionRequest:
+      type: object
+      required:
+        - redirectUrl
+        - payerId
+      properties:
+        redirectUrl:
+          type: string
+          format: url
+        payerId:
+          type: string
+          format: uuid
+    #enumerations
+    CardSchemeEnum:
+      type: string
+      enum:
+        - MASTERCARD
+        - AMEX
+        - VISA
+        - DINERS
+        - DISCOVER
+        - UNIONPAY
+    CardMaskSchemeEnum:
+      type: string
+      enum:
+        - FOUR_THREE
+        - ONE_TWO
+    InstrumentTypeEnum:
+      type: sting
+      enum:
+        - CREDIT_CARD
+        - BANK_ACCOUNT
+    ResourceTypeEnum:
+      type: string
+      enum:
+        - USER
+        - INSTRUMENT
+        - VAULT
+        - NOTIFICATION
+    StatusCodeEnum:
+      type: number
+      enum:
+        - 200
+        - 202
+        - 204
+        - 400
+        - 401
+        - 403
+        - 404
+        - 500
+    UserStateEnum:
+      type: string
+      enum:
+        - ACTIVE
+        - SUSPENDED
