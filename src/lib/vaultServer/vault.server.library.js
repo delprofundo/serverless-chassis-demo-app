@@ -5,7 +5,7 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
-
+const logger = require("log-winston-aws-level" );
 const {
   API_ROOT,
   CC_SIGNING_KEY,
