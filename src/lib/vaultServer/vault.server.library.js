@@ -203,18 +203,19 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
     maskedCardNumber: maskIdentifier( cardNumber, MASK_SCHEMES.FOUR_THREE ),
   };
-  let instrument;
+  let validCard;
   try {
-    instrument = {
-      ...validateStoredCreditCard( inboundRecord ),
-      hashKey: payerId,
-      rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
-    };
-    console.log("INSTRUMENTeD :", instrument );
+    validCard = validateStoredCreditCard( inboundRecord );
   } catch ( err ) {
     logger.error( "error : in val ", err );
+    throw err;
   }
-
+  const instrument = {
+    ...validCard,
+    hashKey: payerId,
+    rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
+  };
+  console.log("INSTRUMENTeD :", instrument );
   logger.info("parsed and can persist", instrument );
   try {
     const putResponse = await db.put({
