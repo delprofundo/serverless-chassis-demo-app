@@ -194,13 +194,22 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const { instrumentId, payerId, cardNumber, cardMaskScheme } = incomingInstrument;
   logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  const instrument = validateStoredCreditCard({
+
+  const ev = {
     ...incomingInstrument,
     encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
     maskedCardNumber: maskIdentifier( cardNumber, cardMaskScheme ),
     hashKey: payerId,
     rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`
-  });
+  };
+  let instrument;
+  try {
+    logger.info( "ev : ", ev );
+    instrument = validateStoredCreditCard( ev );
+  } catch ( err ) {
+    logger.error( "error : in val ", err );
+  }
+
   logger.info("parsed and can persist", instrument );
   try {
     const putResponse = await db.put({
