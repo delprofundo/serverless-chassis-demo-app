@@ -59,7 +59,7 @@ const validate = ( schema, object, strip = true ) => {
 export const validateInboundCreditCard = ( object ) => {
   return validate( inboundCreditCardSchema, object )
 };
-
+// TODO: change the name here so we can be explicitly different to card service
 export const validateStoredCreditCard = ( object ) => {
   return validate( creditCardSchema, object )
 };

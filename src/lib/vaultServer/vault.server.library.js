@@ -14,8 +14,6 @@ const {
 } = process.env;
 
 const uuid = require( "uuid" );
-const request = require( 'request' );
-const requestP = require( 'request-promise-native');
 const moment = require( 'moment' );
 const randString = require( 'randomstring' );
 const logger = require( 'log-winston-aws-level' );

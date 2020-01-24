@@ -104,7 +104,7 @@ functions:
     description: takes card data from instrument session, parses and forwards
     events:
       - http:
-          path: /instruments/{sessionToken}/submitt
+          path: /instruments/{sessionToken}/submit
           method: put
           cors: true
   serviceQueueHandler:

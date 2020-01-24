@@ -24,9 +24,147 @@ tags:
     description: endpoints relating to session vault functionality.
   - name: vault instrument
     description: endpoints relating to instrument vault functionality.
+  - name: instruments
+    description: endpoints relating to day to day usage of payment instruments.
 security:
   - bearereAuth: []
 paths:
+  /instruments:
+    get:
+      tags:
+        - instruments
+      summary: get a filterable collection of instruments
+      operationId: getInstrumentCollection
+      responses:
+        200:
+          description: success requesting a collection of cards
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstrumentList"
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /instruments/{id}:
+    get:
+      tags:
+        - instruments
+      summary: get an individual masked instrument by id
+      operationId: getInstrumentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: success requesting a collection of cards
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstrumentItem"
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /instruments/session:
+    post:
+      tags:
+        - instruments
+      summary: request a vault capture session to be initiated
+      operationId: requestVaultSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VaultSessionRequest"
+      responses:
+        200:
+          description: |
+            success requesting a vault session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
   /vault/form/sessions:
     post:
       tags:
@@ -475,6 +613,48 @@ components:
       type: object
     EchoResponse:
       type: object
+    InstrumentItem:
+      type: object
+      properties:
+        instrumentId:
+          type: string
+          format: uuid
+        instrumentToken:
+          type: string
+          minLength: 64
+          maxLength: 64
+        instrumentType:
+          $ref: "#/components/schemas/InstrumentTypeEnum"
+        cardholderName:
+          type: string
+          minLength: 5
+          maxLength: 120
+        cardScheme:
+          $ref: '#/components/schemas/CardSchemeEnum'
+        maskedCardExpiry:
+          type: string
+          maxLength: 4
+          minLength: 4
+        cardCcv:
+          type: string
+          minLength: 3
+          maxLength: 4
+        cardCountry:
+          type: string
+          minLength: 2
+          maxLength: 3
+        maskedCardNumber:
+          type: string
+        payerId:
+          type: string
+          format: uuid
+    InstrumentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InstrumentItem"
     InstrumentStateSubmission:
       type: object
       properties:
