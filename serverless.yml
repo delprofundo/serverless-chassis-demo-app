@@ -109,7 +109,7 @@ functions:
           cors: true
   serviceQueueHandler:
     handler: src/handler.serviceQueueHandler
-    name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
+    name: ${self:provider.stage}-${self:custom.grub}-1serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
       - sqs:
@@ -117,7 +117,7 @@ functions:
             Fn::GetAtt: [ ServiceQueue, Arn ]
   serviceTableStreamHandler:
     handler: src/handler.serviceTableStreamHandler
-    name: ${self:provider.stage}-${self:custom.grub}-1serviceTableStreamHandler
+    name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
     description: processes messages that cross the ingress queue.
     events:
       - stream:
