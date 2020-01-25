@@ -109,7 +109,7 @@ functions:
           cors: true
   serviceQueueHandler:
     handler: src/handler.serviceQueueHandler
-    name: ${self:provider.stage}-${self:custom.grub}-1-serviceQueueHandler
+    name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
       - sqs:
@@ -164,4 +164,4 @@ resources:
     IamPolicyLambdaDynamo: ${file(configurators/iamPolicyLambdaDynamo.yaml)}
     PathMapping: ${file(configurators/pathMapping.yaml)}
     ServiceTable: ${file(configurators/serviceTable.yaml)}
-    ServiceIngressQueue: ${file(configurators/serviceIngressQueue.yaml)}
+    ServiceQueue: ${file(configurators/serviceQueue.yaml)}
