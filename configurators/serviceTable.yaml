@@ -17,5 +17,5 @@ Properties:
   TimeToLiveSpecification:
     AttributeName: recordExpiry
     Enabled: true
-#  StreamSpecification:
-#    StreamViewType: NEW_AND_OLD_IMAGES
+  StreamSpecification:
+    StreamViewType: NEW_AND_OLD_IMAGES

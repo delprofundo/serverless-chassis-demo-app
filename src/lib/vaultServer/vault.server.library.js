@@ -5,6 +5,8 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
+import {dynamoStreamEventPromisifier} from "../awsHelpers/dynamoStream.helper.library";
+import { kinesisStreamEventPromisifier } from "../awsHelpers/kinesis.helper.library";
 const {
   API_ROOT,
   CC_SIGNING_KEY,
@@ -143,6 +145,11 @@ export const processSubmitInstrumentSession = async ( ) => {
 
 }; //end processSubmitInstrumentSession
 
+///                                            ///
+///            INGEST QUEUE HANDLERS           ///
+///                                            ///
+//////////////////////////////////////////////////
+
 export const processServiceQueueMessages = async ( queueEvents, db ) => {
   return queueEventPromisifier( queueEvents, processInboundEvent, db );
 }; // end processServiceQueueMessages
@@ -162,13 +169,41 @@ const processInboundEvent = async ( queueEvent, db ) => {
   }
 }; // end processInboundEvent
 
-export const  processTableStreamEvents = async () => {
+///                                            ///
+///            TABLE STREAM HANDLERS           ///
+///                                            ///
+//////////////////////////////////////////////////
 
+export const  processTableStreamEvents = async ( tableUpdateAssembly, stream ) => {
+  return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
 }; // end processTableStreamEvents
 
-export const processBusStreamEvents = async () => {
+const processTableStreamEvent = async ( record, stream ) => {
+  logger.info( "inside processTableStreamEvent : ", record );
+  switch( record.streamEventName ) {
+    case "MODIFY":
+      await processTableModifyEvent( record, stream );
+      break;
+    case "INSERT":
+    case "REMOVE":
+    default:
+      logger.info( `table event type ${ record.streamEventName } not handled : `, record );
+  }
+}; // end processTableStreamEvent
 
+const processTableModifyEvent = async ( record, stream ) => {
+  // ONLY IF SUBMITTED INSTRUMENT FIRE
+  //if( record.)
+}
+
+export const processBusStreamEvents = async ( busEvents, queue, db ) => {
+  // extract the
+  return kinesisStreamEventPromisifier( busEvents, processGlobalBusEvents, queue, db )
 }; // end processBusStreamEvents
+
+const processGlobalBusEvents = ( event, queue, db ) => {
+  logger.info("GOT THE BUS EVENT : ", event );
+};
 
 const processNewInstrumentSession = async ( sessionRequest, db ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
@@ -214,7 +249,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
     hashKey: payerId,
     rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
   };
-  console.log("INSTRUMENTeD :", instrument );
+  console.log("INSTRUMENTED :", instrument );
   logger.info("parsed and can persist", instrument );
   try {
     const putResponse = await db.put({
@@ -227,3 +262,10 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
     throw err;
   }
 }; // end processAppendInstrumentSession
+
+const DELIMITER = "#";
+const compoundKeyExtract = ( string, indexNumber = 1 ) => {
+  const workingString = string.split( DELIMITER ).slice( 0, indexNumber );
+  console.log("working : ", workingString );
+  return workingString.join( DELIMITER );
+};

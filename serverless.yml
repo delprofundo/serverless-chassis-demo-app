@@ -31,15 +31,15 @@ provider:
         - xray:PutTraceSegments
         - sqs:SendMessage
       Resource: "*"
-#    - Effect: Allow
-#      Action:
-#        - kinesis:PutRecord
-#        - kinesis:PutRecords
-#        - kinesis:GetRecords
-#        - kinesis:GetShardIterator
-#        - kinesis:DescribeStream
-#        - kinesis:ListStreams
-#      Resource: ${self:custom.sharedServiceBusARN}
+    - Effect: Allow
+      Action:
+        - kinesis:PutRecord
+        - kinesis:PutRecords
+        - kinesis:GetRecords
+        - kinesis:GetShardIterator
+        - kinesis:DescribeStream
+        - kinesis:ListStreams
+      Resource: ${self:custom.sharedServiceBusARN}
 package:
   include:
     - configurators
@@ -115,26 +115,28 @@ functions:
       - sqs:
           arn:
             Fn::GetAtt: [ ServiceIngressQueue, Arn ]
-#  serviceTableStreamHandler:
-#    handler: src/handler.serviceTableStreamHandler
-#    name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
-#    description: processes messages that cross the ingress queue.
-#    events:
-#      - stream:
-#          arn:
-#            Fn::GetAtt: [ ServiceTable, Arn ]
-#          enabled: true
-#          type: dynamodb
-#  sharedServiceBusEventHandler:
-#    handler: src/handler.sharedServiceBusEventHandler
-#    name: ${self:provider.stage}-${self:custom.grub}-sharedServiceBusEventHandler
-#    description: process messages from the application's shared service bus
-#    events:
-#      - stream:
-#          arn: ${self:custom.sharedServiceBusARN}
-#          batchSize: 20
-#          startingPosition: TRIM_HORIZON
-#          enabled: false
+  serviceTableStreamHandler:
+    handler: src/handler.serviceTableStreamHandler
+    name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
+    description: processes messages that cross the ingress queue.
+    events:
+      - stream:
+          arn:
+            Fn::GetAtt: [ ServiceTable, StreamArn ]
+          batchSize: 1
+          startingPosition: TRIM_HORIZON
+          type: dynamodb
+          enabled: true
+  sharedServiceBusEventHandler:
+    handler: src/handler.sharedServiceBusEventHandler
+    name: ${self:provider.stage}-${self:custom.grub}-sharedServiceBusEventHandler
+    description: process messages from the application's shared service bus
+    events:
+      - stream:
+          arn: ${self:custom.sharedServiceBusARN}
+          batchSize: 1
+          startingPosition: TRIM_HORIZON
+          enabled: false
   pingService:
     handler: src/handler.ping
     name: ${self:provider.stage}-${self:custom.grub}-ping
@@ -162,5 +164,4 @@ resources:
     IamPolicyLambdaDynamo: ${file(configurators/iamPolicyLambdaDynamo.yaml)}
     PathMapping: ${file(configurators/pathMapping.yaml)}
     ServiceTable: ${file(configurators/serviceTable.yaml)}
-#    ServiceTableEventSourceMapping: ${file(configurators/serviceTableEventSourceMapping.yaml)}
     ServiceIngressQueue: ${file(configurators/serviceIngressQueue.yaml)}

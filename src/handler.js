@@ -184,10 +184,12 @@ export const sharedServiceBusEventHandler = async ( event ) => {
  */
 export const serviceTableStreamHandler = async ( event ) => {
   logger.info( "inside serviceTableStreamHandler", event );
-  const tableEvents = [ ...unstring( event.Records )];
-
+  const tableUpdateAssembly = {
+    incomingRecords: [ ...unstring( event.Records )]
+  };
+  logger.info( "table update assembly : ", tableUpdateAssembly );
   try {
-   const workerResponse = await processTableStreamEvents( tableEvents );
+   const workerResponse = await processTableStreamEvents( tableUpdateAssembly );
    logger.info( "successfully processed stream events :", workerResponse );
   } catch ( err ) {
     logger.error( "error processing table stream event : ", err );
