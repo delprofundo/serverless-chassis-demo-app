@@ -109,7 +109,7 @@ functions:
           cors: true
   serviceQueueHandler:
     handler: src/handler.serviceQueueHandler
-    name: ${self:provider.stage}-${self:custom.grub}-1serviceQueueHandler
+    name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
       - sqs:
