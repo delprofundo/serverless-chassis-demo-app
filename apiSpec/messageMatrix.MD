@@ -1,5 +1,7 @@
 ## Global Event Bus Messages
 
+**this table shows which services are interested in events generated within the application**
+
 
 |         event          |  instruments  |  vault  |  user  |
 |------------------------|---------------|---------|--------|
