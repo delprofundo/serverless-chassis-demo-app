@@ -18,7 +18,7 @@ provider:
     SHARED_SERVICE_BUS: ${self:custom.sharedServiceBus}
     CC_SIGNING_KEY: ${self:custom.ccSigningKey}
     SERVICE_QUEUE:
-      Ref: ServiceIngressQueue
+      Ref: ServiceQueue
     SERVICE_TABLE:
       Ref: ServiceTable
   iamRoleStatements:
@@ -114,7 +114,7 @@ functions:
     events:
       - sqs:
           arn:
-            Fn::GetAtt: [ ServiceIngressQueue, Arn ]
+            Fn::GetAtt: [ ServiceQueue, Arn ]
   serviceTableStreamHandler:
     handler: src/handler.serviceTableStreamHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
