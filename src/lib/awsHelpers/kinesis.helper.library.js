@@ -12,7 +12,7 @@ const AWS = require( "aws-sdk" );
 
 
 export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessorFunction, target1, target2 ) => {
-  console.log( "in promisifier : ", queueEvents );
+  console.log( "in k promisifier : ", queueEvents );
   try {
     await Promise.all(queueEvents.map( async ( event ) => {
       return eventProcessorFunction( event, target1, target2 )
@@ -21,4 +21,4 @@ export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessor
     logger.error( "error in table stream PROMISIFIER", err );
     throw err;
   }
-}; // end dynamoStreamEventPromisifier
+}; // end kinesisStreamEventPromisifier
