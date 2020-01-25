@@ -107,7 +107,7 @@ functions:
           path: /instruments/{sessionToken}/submit
           method: put
           cors: true
-  serviceQueueHandler:
+  serviceQueueHandler-123:
     handler: src/handler.serviceQueueHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
