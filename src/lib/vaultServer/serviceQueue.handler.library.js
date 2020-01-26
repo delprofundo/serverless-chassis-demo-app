@@ -27,7 +27,7 @@ const processInboundEvent = async ( queueEvent, db ) => {
   logger.info( "inside processInboundEvent", queueEvent );
   const { requestType, eventPayload } = queueEvent;
   switch ( requestType ) {
-    case REQUEST_TYPES.NEW_INSTRUMENT_SESSION:
+    case REQUEST_TYPES.VAULT_SESSION_REQUESTED:
       return processNewInstrumentSession( eventPayload, db );
     case REQUEST_TYPES.APPEND_INSTRUMENT_TO_SESSION:
       return processAppendInstrumentSession( eventPayload, db );

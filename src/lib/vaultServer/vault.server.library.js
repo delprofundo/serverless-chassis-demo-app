@@ -12,7 +12,6 @@ const {
 
 const uuid = require( "uuid" );
 const moment = require( 'moment' );
-const randString = require( 'randomstring' );
 const logger = require( 'log-winston-aws-level' );
 const luhn = require('luhn');
 
@@ -32,25 +31,25 @@ import {
 import { vault_metadata } from "../../schema/vault.schema"
 const { REQUEST_TYPES, RECORD_TYPES, SESSION_VARIABLES, VALIDATION_ERROR } = vault_metadata;
 
-export const processRequestInstrumentSession = async ( requestAssembly, queue ) => {
-  const assembly = unstring( requestAssembly );
-  const sessionToken = randString.generate( SESSION_VARIABLES.SESSION_TOKEN_LENGTH );
-  try {
-    const queuePayload = {
-      eventPayload: { ...assembly, sessionToken},
-      requestType: REQUEST_TYPES.NEW_INSTRUMENT_SESSION
-    };
-    const queueResponse = await queue.sendMessage({
-      MessageBody: JSON.stringify( queuePayload ),
-      QueueUrl: SERVICE_QUEUE
-    }).promise();
-    logger.info( "successfully put record : ", queueResponse );
-    return { sessionToken }
-  } catch ( err ) {
-    logger.error( "error putting session record : ", err );
-    throw err;
-  }
-}; //end processRequestInstrumentSession
+// export const processRequestInstrumentSession = async ( requestAssembly, queue ) => {
+//   const assembly = unstring( requestAssembly );
+//   const sessionToken = randString.generate( SESSION_VARIABLES.SESSION_TOKEN_LENGTH );
+//   try {
+//     const queuePayload = {
+//       eventPayload: { ...assembly, sessionToken},
+//       requestType: REQUEST_TYPES.VAULT_SESSION_REQUESTED
+//     };
+//     const queueResponse = await queue.sendMessage({
+//       MessageBody: JSON.stringify( queuePayload ),
+//       QueueUrl: SERVICE_QUEUE
+//     }).promise();
+//     logger.info( "successfully put record : ", queueResponse );
+//     return { sessionToken }
+//   } catch ( err ) {
+//     logger.error( "error putting session record : ", err );
+//     throw err;
+//   }
+// }; //end processRequestInstrumentSession
 
 export const appendInstrument = async( instrumentAssembly, db, queue) => {
   logger.info("inside processAppendInstrumentSession : ", instrumentAssembly );

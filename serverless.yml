@@ -80,15 +80,15 @@ functions:
 #    name: ${self:provider.stage}-${self:custom.grub}-authorize
 #    handler: src/sec/authorize.handler
 #    description: must use US spelling for authorize function.
-  requestInstrumentSession:
-    handler: src/handler.requestInstrumentSession
-    name: ${self:provider.stage}-${self:custom.grub}-requestInstrumentSession
-    description: request a vault capture session to be initiated for a given payer (move to user service)
-    events:
-      - http:
-          path: /instruments
-          method: post
-          cors: true
+#  requestInstrumentSession:
+#    handler: src/handler.requestInstrumentSession
+#    name: ${self:provider.stage}-${self:custom.grub}-requestInstrumentSession
+#    description: request a vault capture session to be initiated for a given payer (move to user service)
+#    events:
+#      - http:
+#          path: /instruments
+#          method: post
+#          cors: true
   appendInstrumentSession:
     handler: src/handler.appendInstrumentSession
     name: ${self:provider.stage}-${self:custom.grub}-appendInstrumentSession

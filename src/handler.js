@@ -13,10 +13,8 @@ AWS.config.update({ region: DEPLOY_REGION });
 const util = require( "./lib/util.server.library" );
 
 import {
-  processRequestInstrumentSession,
   processSubmitInstrumentSession,
-  appendInstrument,
-  processTableStreamEvents
+  appendInstrument
 } from "./lib/vaultServer/vault.server.library"
 import { processBusStreamEvents } from "./lib/vaultServer/globalEventBus.handler.library";
 import { processServiceQueueMessages } from "./lib/vaultServer/serviceQueue.handler.library"
@@ -42,23 +40,23 @@ const queue = new AWS.SQS();
  * @param event
  * @returns {Promise<{body: string, statusCode: *, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}|{body: string, statusCode: number, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}>}
  */
-export const requestInstrumentSession = async ( event ) => {
-  logger.info( "inside requestVaultSession : ", event );
-  const requestAssembly = { ...unstring(event.body) };
-
-  if( !validateSessionRequest(requestAssembly)) {
-    return RESifyErr( new Error("Invalid request structure"), 400)
-  }
-
-  try{
-    const requestedSessionInfo = await processRequestInstrumentSession( requestAssembly, queue );
-    logger.info("successfully requested session : ", requestedSessionInfo );
-    return RESifySuccess( requestedSessionInfo );
-  } catch ( err ) {
-    logger.error( "error in requestVaultSession : ", err );
-    return RESifyErr( err );
-  }
-}; // end requestVaultSession
+// export const requestInstrumentSession = async ( event ) => {
+//   logger.info( "inside requestVaultSession : ", event );
+//   const requestAssembly = { ...unstring(event.body) };
+//
+//   if( !validateSessionRequest(requestAssembly)) {
+//     return RESifyErr( new Error("Invalid request structure"), 400)
+//   }
+//
+//   try{
+//     const requestedSessionInfo = await processRequestInstrumentSession( requestAssembly, queue );
+//     logger.info("successfully requested session : ", requestedSessionInfo );
+//     return RESifySuccess( requestedSessionInfo );
+//   } catch ( err ) {
+//     logger.error( "error in requestVaultSession : ", err );
+//     return RESifyErr( err );
+//   }
+// }; // end requestVaultSession
 
 /**
  * requests that the information stored within the instrument
