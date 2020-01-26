@@ -162,7 +162,7 @@ export const sharedServiceBusEventHandler = async ( event ) => {
   logger.info("extracted bus events : ", busEvents );
 
   try {
-    const workerResponse = await processBusStreamEvents( busEvents );
+    const workerResponse = await processBusStreamEvents( busEvents, queue, db );
     logger.info( "successfully processed bus records. worker response : ", workerResponse )
   } catch( err ) {
     logger.error( "error in sharedServiceBusEventHandler : ", err );
