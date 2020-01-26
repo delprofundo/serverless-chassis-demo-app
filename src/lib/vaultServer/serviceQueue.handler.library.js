@@ -51,7 +51,7 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
     sessionToken: sessionRequest.sessionToken,
     hashKey: sessionRequest.sessionToken,
     rangeKey: RECORD_TYPES.INSTRUMENT_SESSION,
-    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES * 2, "minutes").unix(),
+    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
   };
   try {
     const putResponse = await db.put({
@@ -80,6 +80,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
     ...validCard,
     hashKey: sessionToken,
     rangeKey: RECORD_TYPES.SUBMITTED_INSTRUMENT,
+    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix()
   };
   console.log("INSTRUMENTED :", instrument );
   logger.info("parsed and can persist", instrument );
