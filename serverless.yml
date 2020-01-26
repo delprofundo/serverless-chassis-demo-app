@@ -136,7 +136,7 @@ functions:
           arn: ${self:custom.sharedServiceBusARN}
           batchSize: 1
           startingPosition: TRIM_HORIZON
-          enabled: false
+          enabled: true
   pingService:
     handler: src/handler.ping
     name: ${self:provider.stage}-${self:custom.grub}-ping
