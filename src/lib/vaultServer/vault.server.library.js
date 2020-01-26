@@ -5,12 +5,7 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
-import {dynamoStreamEventPromisifier} from "../awsHelpers/dynamoStream.helper.library";
-import { kinesisStreamEventPromisifier } from "../awsHelpers/kinesis.helper.library";
 const {
-  API_ROOT,
-  CC_SIGNING_KEY,
-  DEPLOY_REGION,
   SERVICE_QUEUE,
   SERVICE_TABLE
 } = process.env;
@@ -24,48 +19,18 @@ const luhn = require('luhn');
 import {
   unstring
 } from "../awsHelpers/general.helper.library";
-import {
-  queueEventPromisifier
-} from "../awsHelpers/queue.helper.library";
+
 import {
   creditCardMetadata,
   validateInboundCreditCard,
   validateStoredCreditCard
-} from "./creditCard.schema";
+} from "../../schema/creditCard.schema";
 import {
   validateGenericAsyncResponse,
   genericAsyncResponseMetadata
 } from "../../schema/genericAsyncResponse.schema";
-import {
-  maskIdentifier,
-  encryptString
-} from 'treasury-helpers';
-
-const VALIDATION_ERROR = "ValidationError";
-
-const RESOURCE_TYPES = {
-  PAYER: "PAYER"
-};
-
-const REQUEST_TYPES = {
-  NEW_INSTRUMENT_SESSION: "NEW_INSTRUMENT_SESSION",
-  APPEND_INSTRUMENT_TO_SESSION: "APPEND_INSTRUMENT_TO_SESSION"
-};
-
-const RECORD_TYPES = {
-  INSTRUMENT_SESSION: "INSTRUMENT_SESSION",
-  INSTRUMENT_RECORD: "INSTRUMENT_RECORD"
-};
-
-const SESSION_VARIABLES = {
-  VAULT_EXPIRY_MINUTES: 30,
-  SESSION_TOKEN_LENGTH: 128,
-};
-
-const MASK_SCHEMES = {
-  ONE_TWO: "ONE_TWO",
-  FOUR_THREE: "FOUR_THREE"
-};
+import { vault_metadata } from "../../schema/vault.schema"
+const { REQUEST_TYPES, RECORD_TYPES, SESSION_VARIABLES, VALIDATION_ERROR } = vault_metadata;
 
 export const processRequestInstrumentSession = async ( requestAssembly, queue ) => {
   const assembly = unstring( requestAssembly );
@@ -144,128 +109,3 @@ export const appendInstrument = async( instrumentAssembly, db, queue) => {
 export const processSubmitInstrumentSession = async ( ) => {
 
 }; //end processSubmitInstrumentSession
-
-///                                            ///
-///            INGEST QUEUE HANDLERS           ///
-///                                            ///
-//////////////////////////////////////////////////
-
-export const processServiceQueueMessages = async ( queueEvents, db ) => {
-  return queueEventPromisifier( queueEvents, processInboundEvent, db );
-}; // end processServiceQueueMessages
-
-const processInboundEvent = async ( queueEvent, db ) => {
-  logger.info( "inside processInboundEvent", queueEvent );
-  const { requestType, eventPayload } = queueEvent;
-  switch ( requestType ) {
-    case REQUEST_TYPES.NEW_INSTRUMENT_SESSION:
-      return processNewInstrumentSession( eventPayload, db );
-    case REQUEST_TYPES.APPEND_INSTRUMENT_TO_SESSION:
-      return processAppendInstrumentSession( eventPayload, db );
-    default:
-      //TODO : push record to dump
-      logger.info( "processInboundEvent switch fall through request type:", requestType );
-      return;
-  }
-}; // end processInboundEvent
-
-///                                            ///
-///            TABLE STREAM HANDLERS           ///
-///                                            ///
-//////////////////////////////////////////////////
-
-export const  processTableStreamEvents = async ( tableUpdateAssembly, stream ) => {
-  return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
-}; // end processTableStreamEvents
-
-const processTableStreamEvent = async ( record, stream ) => {
-  logger.info( "inside processTableStreamEvent : ", record );
-  switch( record.streamEventName ) {
-    case "MODIFY":
-      await processTableModifyEvent( record, stream );
-      break;
-    case "INSERT":
-    case "REMOVE":
-    default:
-      logger.info( `table event type ${ record.streamEventName } not handled : `, record );
-  }
-}; // end processTableStreamEvent
-
-const processTableModifyEvent = async ( record, stream ) => {
-  // ONLY IF SUBMITTED INSTRUMENT FIRE
-  //if( record.)
-}
-
-export const processBusStreamEvents = async ( busEvents, queue, db ) => {
-  // extract the
-  return kinesisStreamEventPromisifier( busEvents, processGlobalBusEvents, queue, db )
-}; // end processBusStreamEvents
-
-const processGlobalBusEvents = ( event, queue, db ) => {
-  logger.info("GOT THE BUS EVENT : ", event );
-};
-
-const processNewInstrumentSession = async ( sessionRequest, db ) => {
-  logger.info( "inside processNewInstrumentSession ", sessionRequest );
-  const record = {
-    instrumentId: uuid.v4(),
-    captureSessionExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
-    sessionRedirectUrl: sessionRequest.redirectUrl,
-    payerId: sessionRequest.payerId,
-    sessionToken: sessionRequest.sessionToken,
-    hashKey: sessionRequest.sessionToken,
-    rangeKey: RECORD_TYPES.INSTRUMENT_SESSION,
-    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES * 2, "minutes").unix(),
-  };
-  try {
-    const putResponse = await db.put({
-      TableName: SERVICE_TABLE,
-      Item: record
-    }).promise();
-    logger.info( "successfully put session to collection", putResponse );
-  } catch( err ) {
-    logger.error( "error processing new instrument session" );
-    throw err;
-  }
-}; // end processNewInstrumentSession
-
-const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
-  const { instrumentId, payerId, cardNumber } = incomingInstrument;
-  logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  const inboundRecord = {
-    ...incomingInstrument,
-    encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
-    maskedCardNumber: maskIdentifier( cardNumber, MASK_SCHEMES.FOUR_THREE ),
-  };
-  let validCard;
-  try {
-    validCard = validateStoredCreditCard( inboundRecord );
-  } catch ( err ) {
-    logger.error( "error : in val ", err );
-    throw err;
-  }
-  const instrument = {
-    ...validCard,
-    hashKey: payerId,
-    rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
-  };
-  console.log("INSTRUMENTED :", instrument );
-  logger.info("parsed and can persist", instrument );
-  try {
-    const putResponse = await db.put({
-      TableName: SERVICE_TABLE,
-      Item: instrument
-    }).promise();
-    logger.info( "successfully put instrument to collection", putResponse );
-  } catch( err ) {
-    logger.error( "error processing new instrument", err );
-    throw err;
-  }
-}; // end processAppendInstrumentSession
-
-const DELIMITER = "#";
-const compoundKeyExtract = ( string, indexNumber = 1 ) => {
-  const workingString = string.split( DELIMITER ).slice( 0, indexNumber );
-  console.log("working : ", workingString );
-  return workingString.join( DELIMITER );
-};

@@ -30,3 +30,10 @@ export const putToDb = async ( record, table, db ) => {
 export const updateRecord = async ( updateParameters, db ) => {
   return db.update( updateParameters ).promise()
 };
+
+const DELIMITER = "#";
+export const compoundKeyExtract = ( string, indexNumber = 1 ) => {
+  const workingString = string.split( DELIMITER ).slice( 0, indexNumber );
+  console.log("working : ", workingString );
+  return workingString.join( DELIMITER );
+};

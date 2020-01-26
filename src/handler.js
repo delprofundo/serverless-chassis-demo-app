@@ -16,17 +16,17 @@ import {
   processRequestInstrumentSession,
   processSubmitInstrumentSession,
   appendInstrument,
-  processServiceQueueMessages,
-  processTableStreamEvents,
-  processBusStreamEvents
+  processTableStreamEvents
 } from "./lib/vaultServer/vault.server.library"
+import { processBusStreamEvents } from "./lib/vaultServer/globalEventBus.handler.library";
+import { processServiceQueueMessages } from "./lib/vaultServer/serviceQueue.handler.library"
 import {
   RESifySuccess,
   RESifyErr
 } from "./lib/awsHelpers/RESifier.representor.library";
 import { unstring } from "./lib/awsHelpers/general.helper.library";
 
-import { validateSessionRequest } from "./lib/vaultServer/vault.schema"
+import { validateSessionRequest } from "./schema/vault.schema"
 
 //ADD LIB's HERE
 //declare the DB here and inject it to all calls that require it
