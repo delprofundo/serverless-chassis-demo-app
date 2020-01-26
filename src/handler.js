@@ -18,6 +18,7 @@ import {
 } from "./lib/vaultServer/vault.server.library"
 import { processBusStreamEvents } from "./lib/vaultServer/globalEventBus.handler.library";
 import { processServiceQueueMessages } from "./lib/vaultServer/serviceQueue.handler.library"
+import { processTableStreamEvents } from "./lib/vaultServer/serviceTableStream.handler.library"
 import {
   RESifySuccess,
   RESifyErr
