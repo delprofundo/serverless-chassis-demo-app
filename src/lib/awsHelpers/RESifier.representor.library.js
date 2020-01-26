@@ -19,7 +19,7 @@ export const RESifySuccess = ( candidateObject, statusCode = 200, extraHeaders )
     headers: {
       "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
       "Access-Control-Allow-Credentials" : true, // Required for cookies, authorization headers with HTTPS
-      extraHeaders
+      ...extraHeaders
     }
   };
   if(!candidateObject) {
