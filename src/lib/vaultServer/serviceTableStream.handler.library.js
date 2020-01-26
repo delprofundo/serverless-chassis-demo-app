@@ -6,6 +6,7 @@
  * bruno@hypermedia.tech
  ********************************************/
 import { dynamoStreamEventPromisifier } from "../awsHelpers/dynamoStream.helper.library";
+const logger = require( 'log-winston-aws-level' );
 
 import { vault_metadata } from "../../schema/vault.schema"
 
