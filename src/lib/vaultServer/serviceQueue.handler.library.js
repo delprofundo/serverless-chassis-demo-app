@@ -12,6 +12,8 @@ const {
 
 const moment = require( 'moment' );
 const uuid = require( "uuid" );
+const logger = require( 'log-winston-aws-level' );
+
 import { encryptString, maskIdentifier } from "treasury-helpers";
 
 import { queueEventPromisifier } from "../awsHelpers/queue.helper.library";

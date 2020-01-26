@@ -25,8 +25,6 @@ import {
 } from "./lib/awsHelpers/RESifier.representor.library";
 import { unstring } from "./lib/awsHelpers/general.helper.library";
 
-import { validateSessionRequest } from "./schema/vault.schema"
-
 //ADD LIB's HERE
 //declare the DB here and inject it to all calls that require it
 const db = new AWS.DynamoDB.DocumentClient();
