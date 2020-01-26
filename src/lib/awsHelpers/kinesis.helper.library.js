@@ -12,10 +12,17 @@ const AWS = require( "aws-sdk" );
 
 
 export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessorFunction, target1, target2 ) => {
-  console.log( "in k promisifier : ", queueEvents );
+  logger.info( "in k promisifier : ", queueEvents );
+
   try {
     await Promise.all(queueEvents.map( async ( event ) => {
-      return eventProcessorFunction( event, target1, target2 )
+
+      const parsedEvent = {
+        data: JSON.parse( new Buffer( event.kinesis.data, "base64" ))
+      };
+
+      logger.info( "parsed Event : ", parsedEvent );
+      return eventProcessorFunction( parsedEvent, target1, target2 )
     }))
   } catch( err ) {
     logger.error( "error in table stream PROMISIFIER", err );
