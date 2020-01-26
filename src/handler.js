@@ -35,7 +35,7 @@ const queue = new AWS.SQS();
  * requests that the information stored within the instrument
  * session be parsed and submitted for secure storage
  * @param event
- * @returns {Promise<{body: string, statusCode: *, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}>}
+ * @returns {Promise<>}
  */
 export const submitInstrumentSession = async ( event ) => {
   logger.info( "inside submitInstrumentSession : ", event );
@@ -53,7 +53,7 @@ export const submitInstrumentSession = async ( event ) => {
  * submit details to a current session. does not submit the session
  * just adds the input to it extra fields are ignored.
  * @param event
- * @returns {Promise<{body: string, statusCode: *, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}>}
+ * @returns {Promise<>}
  */
 export const appendInstrumentSession = async ( event ) => {
   logger.info( "inside appendInstrumentSession : ", event );
@@ -65,12 +65,9 @@ export const appendInstrumentSession = async ( event ) => {
   try {
     const queueSubmissionResponse = await appendInstrument( instrumentAssembly, db, queue );
     logger.info( "successfully pushed request to queue : ", queueSubmissionResponse );
-    return ({
-      statusCode: 302,
-      headers: {
-        Location: queueSubmissionResponse.redirect
-      }
-    });
+    const res = RESifySuccess({}, 302,  {"Location": queueSubmissionResponse.redirect} )
+    logger.info( "RES : ", res );
+    return ( res );
   } catch( err ) {
     logger.error( "error in appendInstrumentSession : ", err );
     return RESifyErr( err );
