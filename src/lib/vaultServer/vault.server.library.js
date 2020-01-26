@@ -100,7 +100,7 @@ export const appendInstrument = async( instrumentAssembly, db, queue) => {
     logger.info( "successfully pushed message onto queue : ", queueResponse );
     const responseObject = validateGenericAsyncResponse({
       result: "OK",
-      resourceId: instrument.payerId,
+      resourceId: session.payerId,
       resourceType: RESOURCE_TYPES.PAYER
     });
     logger.info("wrapped the response : ", responseObject );
