@@ -5,7 +5,6 @@
  * @module vault/ServiceHandler
  */
 const { DEPLOY_REGION } = process.env;
-
 const logger = require("log-winston-aws-level");
 const AWSXRay = require("aws-xray-sdk-core");
 const AWS = AWSXRay.captureAWS(require("aws-sdk"));
@@ -25,38 +24,13 @@ import {
 } from "./lib/awsHelpers/RESifier.representor.library";
 import { unstring } from "./lib/awsHelpers/general.helper.library";
 
-//ADD LIB's HERE
-//declare the DB here and inject it to all calls that require it
 const db = new AWS.DynamoDB.DocumentClient();
 const queue = new AWS.SQS();
+
 ///                                            ///
 ///             EXPORTED FUNCTIONS             ///
 ///                                            ///
 //////////////////////////////////////////////////
-/**
- * initiates an instrument session, which will return a
- * URL the client app can submit payment instrument details to
- * @param event
- * @returns {Promise<{body: string, statusCode: *, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}|{body: string, statusCode: number, headers: {"'Access-Control-Allow-Origin'": string, "'Access-Control-Allow-Credentials'": boolean}}>}
- */
-// export const requestInstrumentSession = async ( event ) => {
-//   logger.info( "inside requestVaultSession : ", event );
-//   const requestAssembly = { ...unstring(event.body) };
-//
-//   if( !validateSessionRequest(requestAssembly)) {
-//     return RESifyErr( new Error("Invalid request structure"), 400)
-//   }
-//
-//   try{
-//     const requestedSessionInfo = await processRequestInstrumentSession( requestAssembly, queue );
-//     logger.info("successfully requested session : ", requestedSessionInfo );
-//     return RESifySuccess( requestedSessionInfo );
-//   } catch ( err ) {
-//     logger.error( "error in requestVaultSession : ", err );
-//     return RESifyErr( err );
-//   }
-// }; // end requestVaultSession
-
 /**
  * requests that the information stored within the instrument
  * session be parsed and submitted for secure storage
@@ -85,7 +59,7 @@ export const appendInstrumentSession = async ( event ) => {
   logger.info( "inside appendInstrumentSession : ", event );
   const instrumentAssembly = {
     ...unstring(event.body),
-    sessionToken: unstring(event.pathParameters).sessionToken
+    sessionToken: unstring( event.pathParameters ).sessionToken
   };
   logger.info( "INSTRUMENT ASS : ", instrumentAssembly );
   try {

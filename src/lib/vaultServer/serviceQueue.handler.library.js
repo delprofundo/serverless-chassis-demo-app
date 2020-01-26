@@ -65,13 +65,9 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
 }; // end processNewInstrumentSession
 
 const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
-  const { instrumentId, payerId, cardNumber } = incomingInstrument;
+  const { instrumentId } = incomingInstrument;
   logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  const inboundRecord = {
-    ...incomingInstrument,
-    encryptedCardNumber: encryptString( cardNumber, CC_SIGNING_KEY ),
-    maskedCardNumber: maskIdentifier( cardNumber, MASK_SCHEMES.FOUR_THREE ),
-  };
+  const { sessionToken, ...inboundRecord } = incomingInstrument;
   let validCard;
   try {
     validCard = validateStoredCreditCard( inboundRecord );
@@ -81,15 +77,15 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   }
   const instrument = {
     ...validCard,
-    hashKey: payerId,
-    rangeKey: `${ RECORD_TYPES.INSTRUMENT_RECORD }#${ instrumentId }`,
+    hashKey: sessionToken,
+    rangeKey: `${ RECORD_TYPES.SUBMITTED_INSTRUMENT }`,
   };
   console.log("INSTRUMENTED :", instrument );
   logger.info("parsed and can persist", instrument );
   try {
-    const putResponse = await db.put({
+    const putResponse = await db.updateItem({
       TableName: SERVICE_TABLE,
-      Item: instrument
+      Item: { ...instrument }
     }).promise();
     logger.info( "successfully put instrument to collection", putResponse );
   } catch( err ) {

@@ -77,6 +77,7 @@ export const appendInstrument = async( instrumentAssembly, db, queue) => {
     logger.info( "successfully got session record : ", lookupResponse );
     instrument.payerId = session.payerId;
     instrument.instrumentId = uuid.v4();
+    instrument.sessionToken = sessionToken;
   } catch( err ) {
     logger.error( "error processing incoming instrument", err );
     throw err;
