@@ -78,12 +78,12 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const instrument = {
     ...validCard,
     hashKey: sessionToken,
-    rangeKey: `${ RECORD_TYPES.SUBMITTED_INSTRUMENT }`,
+    rangeKey: RECORD_TYPES.SUBMITTED_INSTRUMENT,
   };
   console.log("INSTRUMENTED :", instrument );
   logger.info("parsed and can persist", instrument );
   try {
-    const putResponse = await db.updateItem({
+    const putResponse = await db.put({
       TableName: SERVICE_TABLE,
       Item: { ...instrument }
     }).promise();
