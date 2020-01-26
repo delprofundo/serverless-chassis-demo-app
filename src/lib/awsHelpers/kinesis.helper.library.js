@@ -20,7 +20,7 @@ export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessor
       const parsedEvent = {
         ...event,
         ...event.kinesis,
-        data: JSON.parse( new Buffer( event.kinesis.data, "base64" ))
+        data: JSON.parse( Buffer.from( event.kinesis.data, "base64" ))
       };
       delete parsedEvent.kinesis;
       logger.info( "parsed Event : ", parsedEvent );
