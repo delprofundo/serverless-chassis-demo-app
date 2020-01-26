@@ -159,7 +159,7 @@ export const serviceQueueHandler = async ( event ) => {
 
 export const sharedServiceBusEventHandler = async ( event ) => {
   logger.info( "inside sharedServiceBusEventHandler : ", event );
-  const busEvents = { ...unstring(event.Records )};
+  const busEvents = { ...unstring((event.Records).kinesis )};
   logger.info("extracted bus events : ", busEvents );
 
   try {
