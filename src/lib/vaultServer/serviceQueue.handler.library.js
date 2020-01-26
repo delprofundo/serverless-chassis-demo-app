@@ -5,6 +5,7 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
+
 const {
   CC_SIGNING_KEY,
   SERVICE_TABLE
@@ -17,7 +18,7 @@ const logger = require( 'log-winston-aws-level' );
 import { encryptString, maskIdentifier } from "treasury-helpers";
 
 import { queueEventPromisifier } from "../awsHelpers/queue.helper.library";
-import { validateStoredCreditCard } from "../../schema/creditCard.schema";
+import {validateInboundCreditCard, validateStoredCreditCard} from "../../schema/creditCard.schema";
 import { vault_metadata } from "../../schema/vault.schema"
 const { REQUEST_TYPES, RECORD_TYPES, SESSION_VARIABLES, MASK_SCHEMES } = vault_metadata;
 
@@ -70,7 +71,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   const { sessionToken, ...inboundRecord } = incomingInstrument;
   let validCard;
   try {
-    validCard = validateStoredCreditCard( inboundRecord );
+    validCard = validateInboundCreditCard( inboundRecord );
   } catch ( err ) {
     logger.error( "error : in val ", err );
     throw err;
