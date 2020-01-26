@@ -65,7 +65,7 @@ export const appendInstrumentSession = async ( event ) => {
   try {
     const queueSubmissionResponse = await appendInstrument( instrumentAssembly, db, queue );
     logger.info( "successfully pushed request to queue : ", queueSubmissionResponse );
-    const res = RESifySuccess({}, 302,  {"Location": queueSubmissionResponse.redirect} )
+    const res = RESifySuccess(undefined, 302,  {"Location": queueSubmissionResponse.redirect} )
     logger.info( "RES : ", res );
     return ( res );
   } catch( err ) {

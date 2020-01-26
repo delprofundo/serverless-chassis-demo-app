@@ -13,7 +13,7 @@
  * @constructor
  */
 export const RESifySuccess = ( candidateObject, statusCode = 200, extraHeaders ) => {
-  return {
+  const payload = {
     body: JSON.stringify( candidateObject ),
     statusCode: statusCode,
     headers: {
@@ -22,6 +22,10 @@ export const RESifySuccess = ( candidateObject, statusCode = 200, extraHeaders )
       extraHeaders
     }
   };
+  if(!candidateObject) {
+    delete payload.body
+  }
+  return payload;
 }; // end RESifySuccess
 
 /**
