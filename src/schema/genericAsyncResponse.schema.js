@@ -22,7 +22,6 @@ const genericAsyncResponseSchema = joi.object({
 });
 
 export const validateGenericAsyncResponse = ( object ) => {
-  logger.info( "XYZ" );
   return validate( genericAsyncResponseSchema, object );
 };
 

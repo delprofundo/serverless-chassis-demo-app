@@ -98,11 +98,7 @@ export const appendInstrument = async( instrumentAssembly, db, queue) => {
   try {
     const queueResponse = await queue.sendMessage( queueMessage ).promise();
     logger.info( "successfully pushed message onto queue : ", queueResponse );
-    const responseObject = validateGenericAsyncResponse({
-      result: "OK",
-      resourceId: session.payerId,
-      resourceType: RESOURCE_TYPES.PAYER
-    });
+    const responseObject = { result: "OK", redirect: session.sessionRedirectUrl };
     logger.info("wrapped the response : ", responseObject );
     return ( responseObject )
   } catch( err ) {
