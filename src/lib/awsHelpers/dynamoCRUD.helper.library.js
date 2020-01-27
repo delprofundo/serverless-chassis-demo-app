@@ -26,7 +26,7 @@ export const dynamoGet = async ( hashKey, rangeKey, tableName,  db ) => {
  * @returns {Promise<PromiseResult<D, E>>}
  */
 export const dynamoPut = async (record, table, db ) => {
-  return db.put({
+  return await db.put({
     TableName: table,
     Item: record
   }).promise();
