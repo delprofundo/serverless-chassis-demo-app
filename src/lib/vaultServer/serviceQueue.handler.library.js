@@ -5,6 +5,7 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
+import {dynamoPut} from "../awsHelpers/dynamoCRUD.helper.library";
 
 const {
   CC_SIGNING_KEY,
@@ -34,6 +35,8 @@ const processInboundEvent = async ( queueEvent, db ) => {
       return processNewInstrumentSession( eventPayload, db );
     case REQUEST_TYPES.APPEND_INSTRUMENT_TO_SESSION:
       return processAppendInstrumentSession( eventPayload, db );
+    case REQUEST_TYPES.VAULT_SESSION_SUBMITTED:
+      return processSubmittedInstrumentSession( eventPayload, db );
     default:
       //TODO : push record to dump
       logger.info( "processInboundEvent switch fall through request type:", requestType );
@@ -53,10 +56,7 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
     recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
   };
   try {
-    const putResponse = await db.put({
-      TableName: SERVICE_TABLE,
-      Item: record
-    }).promise();
+    const putResponse = await dynamoPut( record, SERVICE_TABLE, db );
     logger.info( "successfully put session to collection", putResponse );
   } catch( err ) {
     logger.error( "error processing new instrument session" );
@@ -84,13 +84,15 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   console.log("INSTRUMENTED :", instrument );
   logger.info("parsed and can persist", instrument );
   try {
-    const putResponse = await db.put({
-      TableName: SERVICE_TABLE,
-      Item: { ...instrument }
-    }).promise();
+    const putResponse = await dynamoPut( instrument, SERVICE_TABLE, db );
     logger.info( "successfully put instrument to collection", putResponse );
   } catch( err ) {
     logger.error( "error processing new instrument", err );
     throw err;
   }
 }; // end processAppendInstrumentSession
+
+const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
+  logger.info( "inside processSubmittedInstrumentSession: ", sessionRecord );
+
+}; // end processSubmittedInstrumentSession

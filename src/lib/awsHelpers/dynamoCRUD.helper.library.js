@@ -7,6 +7,17 @@
  * @module dynamodb/CRUD
  */
 
+export const dynamoGet = async ( hashKey, rangeKey, tableName,  db ) => {
+  return await db.get({
+    TableName: tableName,
+    Key: {
+      hashKey: hashKey,
+      rangeKey: rangeKey
+    }
+  }).promise()
+} ; // end dynamoGet
+
+
 /**
  * puts or overwrites a record.
  * @param record
@@ -14,7 +25,7 @@
  * @param db
  * @returns {Promise<PromiseResult<D, E>>}
  */
-export const putToDb = async ( record, table, db ) => {
+export const dynamoPut = async (record, table, db ) => {
   return db.put({
     TableName: table,
     Item: record
@@ -37,3 +48,14 @@ export const compoundKeyExtract = ( string, indexNumber = 1 ) => {
   console.log("working : ", workingString );
   return workingString.join( DELIMITER );
 };
+
+/**
+ * simple function taht removes the hash and range key from objects inserted
+ * in a multi view dynamo table (ie: one table for single service)
+ * @param dynamoRecord
+ * @returns {*}
+ */
+export const deindexDynamoRecord = ( dynamoRecord ) => {
+  const { hashKey, rangeKey, ...trimmedRecord } = dynamoRecord;
+  return trimmedRecord;
+}; // end deindexDynamo;
