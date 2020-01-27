@@ -114,9 +114,9 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
   try {
     let dbResponse = await db.query( queryParams ).promise();
     logger.info("SESSION RECORDS : ", dbResponse );
-    instrumentRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items ));
+    instrumentRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items, RECORD_TYPES.INSTRUMENT_RECORD ));
     logger.info("inst : ", instrumentRecord);
-    sessionRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items ));
+    sessionRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items, RECORD_TYPES.INSTRUMENT_SESSION ));
     logger.info( "sesh : ", sessionRecord );
   } catch ( err ) {
     logger.error( "error SUBMITTING INSTRUMENT SESSION", err );
