@@ -157,6 +157,9 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
 }; // end processSubmittedInstrumentSession
 
 const getRecordFromUniqueSet = ( collection, recordType ) => {
+  logger.info ( "IN GETG REC SET COLL :", collection );
+  logger.info ( "IN GETG REC TYPE :", recordType );
+
   return collection.find( x => x.rangeKey === recordType )
 };
 

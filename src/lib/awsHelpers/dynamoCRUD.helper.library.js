@@ -56,6 +56,7 @@ export const compoundKeyExtract = ( string, indexNumber = 1 ) => {
  * @returns {*}
  */
 export const deindexDynamoRecord = ( dynamoRecord ) => {
+  logger.info( "in deindex : ", dynamoRecord );
   const { hashKey, rangeKey, ...trimmedRecord } = dynamoRecord;
   return trimmedRecord;
 }; // end deindexDynamo;
