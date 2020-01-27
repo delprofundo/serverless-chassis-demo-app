@@ -77,6 +77,7 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   }
   const instrument = {
     ...validCard,
+    recordType: RECORD_TYPES.SUBMITTED_INSTRUMENT,
     hashKey: sessionToken,
     rangeKey: RECORD_TYPES.SUBMITTED_INSTRUMENT,
     recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix()

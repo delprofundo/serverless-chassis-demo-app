@@ -5,11 +5,13 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
-import { dynamoStreamEventPromisifier } from "../awsHelpers/dynamoStream.helper.library";
+const { GLOBAL_SERVICE_BUS } = process.env;
 const logger = require( 'log-winston-aws-level' );
 
 import { vault_metadata } from "../../schema/vault.schema"
-import {streamPublish} from "../awsHelpers/kinesis.helper.library";
+import { generatePartitionKey, streamPublish } from "../awsHelpers/kinesis.helper.library";
+import { deindexDynamoRecord } from "../awsHelpers/dynamoCRUD.helper.library";
+import { dynamoStreamEventPromisifier } from "../awsHelpers/dynamoStream.helper.library";
 
 export const  processTableStreamEvents = async ( tableUpdateAssembly, stream ) => {
   return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
@@ -29,14 +31,20 @@ const processTableStreamEvent = async ( record, stream ) => {
 
 const processTableInsertEvent = async ( record, stream ) => {
   logger.info( "inside processTableInsertEvent : ", record );
+  const { newRec: eventRecord } = record;
   // put the event on the stream;
-
-  // try {
-  //   const busResponse = await streamPublish( recprd)
-  // } catch( err ) {
-  //   logger.error( "error pushing record to shared service bus", err );
-  //   throw err;
-  // }
+  try {
+    const busResponse = await streamPublish(
+      deindexDynamoRecord( eventRecord ),
+      eventRecord.recordType,
+      generatePartitionKey(),
+      GLOBAL_SERVICE_BUS,
+      stream );
+    logger.info( "success pushing record onto bus" );
+  } catch( err ) {
+    logger.error( "error pushing record to shared service bus", err );
+    throw err;
+  }
 }; // end processTableInsertEvent
 
 const processTableModifyEvent = async ( record, stream ) => {

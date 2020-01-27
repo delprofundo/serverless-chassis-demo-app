@@ -12,7 +12,6 @@ AWS.config.update({ region: DEPLOY_REGION });
 const util = require( "./lib/util.server.library" );
 
 import {
-  processSubmitInstrumentSession,
   appendInstrument
 } from "./lib/vaultServer/vault.server.library"
 import { processBusStreamEvents } from "./lib/vaultServer/globalEventBus.handler.library";

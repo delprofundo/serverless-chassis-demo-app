@@ -9,6 +9,7 @@
 
 const logger = require( "log-winston-aws-level" );
 const AWS = require( "aws-sdk" );
+const randomString = require( "randomstring" );
 
 export const streamPublish = async ( eventRecord, eventType, partitionKey, streamAddress, stream ) => {
   return await stream.putRecord({
@@ -44,3 +45,7 @@ export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessor
     throw err;
   }
 }; // end kinesisStreamEventPromisifier
+
+export const generatePartitionKey = () => {
+  return randomString.generate( 12 )
+}; // end generatePartitionKey
