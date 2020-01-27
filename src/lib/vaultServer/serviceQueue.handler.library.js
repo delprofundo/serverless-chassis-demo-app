@@ -94,7 +94,21 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
 
 const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
   logger.info( "inside processSubmittedInstrumentSession : ", sessionRecord );
+  const { sessionToken, recordType } = sessionRecord;
   // 1. get the record.
+  const queryParams = {
+    TableName: SERVICE_TABLE,
+    KeyConditionExpression: "#HASH_KEY = :hash_key",
+    ExpressionAttributeValues: {
+      ":hash_key": sessionToken
+    },
+    ExpressionAttributeNames: {
+      "#HASH_KEY": "hashKey"
+    }
+  };
+  console.log( "query: ", queryParams );
+  let sessionRecords = await db.query( queryParams ).promise();
+  logger.info("SESSION RECORDS : ", sessionRecords );
   // 2. check the record is complete and session has not expired (maybe not the expiry? );
   // 3. encrypt card-csv-expiry in one string
   // 4. create masked card
