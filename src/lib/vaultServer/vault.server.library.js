@@ -16,40 +16,10 @@ const logger = require( 'log-winston-aws-level' );
 const luhn = require('luhn');
 
 import {
-  unstring
-} from "../awsHelpers/general.helper.library";
-
-import {
-  creditCardMetadata,
   validateInboundCreditCard,
-  validateStoredCreditCard
 } from "../../schema/creditCard.schema";
-import {
-  validateGenericAsyncResponse,
-  genericAsyncResponseMetadata
-} from "../../schema/genericAsyncResponse.schema";
 import { vault_metadata } from "../../schema/vault.schema"
 const { REQUEST_TYPES, RECORD_TYPES, RESOURCE_TYPES, ERROR_TYPES, JOI_ERRORS } = vault_metadata;
-
-// export const processRequestInstrumentSession = async ( requestAssembly, queue ) => {
-//   const assembly = unstring( requestAssembly );
-//   const sessionToken = randString.generate( SESSION_VARIABLES.SESSION_TOKEN_LENGTH );
-//   try {
-//     const queuePayload = {
-//       eventPayload: { ...assembly, sessionToken},
-//       requestType: REQUEST_TYPES.VAULT_SESSION_REQUESTED
-//     };
-//     const queueResponse = await queue.sendMessage({
-//       MessageBody: JSON.stringify( queuePayload ),
-//       QueueUrl: SERVICE_QUEUE
-//     }).promise();
-//     logger.info( "successfully put record : ", queueResponse );
-//     return { sessionToken }
-//   } catch ( err ) {
-//     logger.error( "error putting session record : ", err );
-//     throw err;
-//   }
-// }; //end processRequestInstrumentSession
 
 export const appendInstrument = async( instrumentAssembly, db, queue) => {
   logger.info("inside processAppendInstrumentSession : ", instrumentAssembly );
@@ -106,7 +76,3 @@ export const appendInstrument = async( instrumentAssembly, db, queue) => {
     throw err;
   }
 }; // end  processAppendInstrumentSession
-
-export const processSubmitInstrumentSession = async ( ) => {
-
-}; //end processSubmitInstrumentSession

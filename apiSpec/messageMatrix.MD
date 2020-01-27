@@ -8,4 +8,4 @@
 |  INSTRUMENT_ADDED        |               |    Y    |        |
 |  VAULT_SESSION_REQUESTED |               |    Y    |        |
 |  USER_ADDED              |        Y      |    Y    |        |
-
+|VAULT_SESSION_SUBMITTED   |               |    Y    |        |

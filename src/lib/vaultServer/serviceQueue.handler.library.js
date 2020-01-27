@@ -45,7 +45,6 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
   const record = {
     instrumentId: uuid.v4(),
-    captureSessionExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
     sessionRedirectUrl: sessionRequest.redirectUrl,
     payerId: sessionRequest.payerId,
     sessionToken: sessionRequest.sessionToken,
