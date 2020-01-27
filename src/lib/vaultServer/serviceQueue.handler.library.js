@@ -48,6 +48,7 @@ const processNewInstrumentSession = async ( sessionRequest, db ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
   const record = {
     instrumentId: uuid.v4(),
+    recordType: RECORD_TYPES.INSTRUMENT_SESSION,
     sessionRedirectUrl: sessionRequest.redirectUrl,
     payerId: sessionRequest.payerId,
     sessionToken: sessionRequest.sessionToken,
