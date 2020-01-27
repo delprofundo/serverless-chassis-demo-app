@@ -93,6 +93,12 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
 }; // end processAppendInstrumentSession
 
 const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
-  logger.info( "inside processSubmittedInstrumentSession: ", sessionRecord );
-
+  logger.info( "inside processSubmittedInstrumentSession : ", sessionRecord );
+  // 1. get the record.
+  // 2. check the record is complete and session has not expired (maybe not the expiry? );
+  // 3. encrypt card-csv-expiry in one string
+  // 4. create masked card
+  // 5. create masked expiry
+  // 6. generate new token
+  // 7. remove pyerId and instrumentId
 }; // end processSubmittedInstrumentSession
