@@ -135,8 +135,8 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
 
   const tokenizedInstrument = {
     hashKey: payerId,
-    rangeKey: `${ RECORD_TYPES.TOKENISED_INSTRUMENT}#${ instrumentId }`,
-    recordType: RECORD_TYPES.TOKENISED_INSTRUMENT,
+    rangeKey: `${ RECORD_TYPES.TOKENIZED_INSTRUMENT}#${ instrumentId }`,
+    recordType: RECORD_TYPES.TOKENIZED_INSTRUMENT,
     tokenId: tokenId,
     instrumentType,
     cardholderName,

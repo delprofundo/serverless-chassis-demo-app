@@ -17,7 +17,6 @@ export const dynamoGet = async ( hashKey, rangeKey, tableName,  db ) => {
   }).promise()
 } ; // end dynamoGet
 
-
 /**
  * puts or overwrites a record.
  * @param record
