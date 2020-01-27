@@ -35,6 +35,20 @@ const inboundCreditCardSchema = Joi.object({
   cardCcv: Joi.string().min( 3 ).max( 4 )
 });
 
+const tokenisedCreditCardSchema = Joi.object({
+  tokenId: Joi.string().guid({version: 'uuidv4'}).required(),
+  instrumentId: Joi.string().guid({version: 'uuidv4'}).required(),
+  instrumentType: Joi.string().valid( ...Object.values( INSTRUMENT_TYPES )).required(),
+  cardholderName: Joi.string().min( 5 ).max( 120 ).required(),
+  cardExpiry: Joi.string().max( 4 ).min( 4 ).regex(/^\d+$/).required(),
+  cardScheme: Joi.string().valid( ...Object.keys( CARD_SCHEMES )).required(),
+  cardCountry: Joi.string().min( 2 ).max( 3 ).required(),
+  cardCcv: Joi.string().min( 3 ).max( 4 ),
+  maskedCardNumber: Joi.string().required(),
+  encryptedCardNumber: Joi.string().required(),
+  payerId: Joi.string().guid({version: 'uuidv4'}),
+});
+
 const creditCardSchema = Joi.object({
   instrumentId: Joi.string().guid({version: 'uuidv4'}).required(),
   instrumentType: Joi.string().valid( ...Object.values( INSTRUMENT_TYPES )).required(),

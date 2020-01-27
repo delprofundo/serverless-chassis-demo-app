@@ -122,20 +122,36 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     logger.error( "error SUBMITTING INSTRUMENT SESSION", err );
     throw err;
   }
-
+  // 2. check the record is complete and session has not expired (maybe not the expiry? );
   if( !validateStoredCreditCard( instrumentRecord )) {
     logger.error( "none of the vault session records are cards" );
     throw Error( "no valid card present in session" );
   }
-
-  // 2. check the record is complete and session has not expired (maybe not the expiry? );
-  // 3. encrypt card-csv-expiry in one string
-  // 4. create masked card
-  // 5. create masked expiry
-  // 6. generate new token
-  // 7. remove pyerId and instrumentId
+  const { instrumentId } =  sessionRecord
+  const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry } = instrumentRecord;
+  const tokensiedCard = {
+    recordType: RECORD_TYPES.TOKENISED_INSTRUMENT,
+    tokenId: uuid.v4(),
+    instrumentId,
+    instrumentType,
+    cardholderName,
+    cardScheme,
+    cardCountry,
+    maskedCardNumber: maskIdentifier( cardNumber ),
+    maskedExpiry: `***${ cardExpiry.slice(-1)}`,
+    encryptedCardData: encryptString(`${ cardNumber }-${ cardExpiry }-${ cardCcv }`, CC_SIGNING_KEY )
+  };
+  try {
+    const dbResponse = await dynamoPut( tokensiedCard, SERVICE_TABLE, db );
+    logger.info( "success putting tokenised card", dbResponse );
+  } catch( err ) {
+    logger.error( "error pushing tokenised card to collection : ", err );
+    throw err;
+  }
 }; // end processSubmittedInstrumentSession
 
 const getRecordFromUniqueSet = ( collection, recordType ) => {
   return collection.find( x => x.rangeKey === recordType )
 };
+
+

@@ -10,6 +10,19 @@
 const logger = require( "log-winston-aws-level" );
 const AWS = require( "aws-sdk" );
 
+export const streamPublish = async ( eventRecord, eventType, partitionKey, streamAddress, stream ) => {
+  return await stream.putRecord({
+    StreamName: streamAddress,
+    PartitionKey: partitionKey,
+    Data: JSON.stringify({
+      id: uuid.v1(),
+      type: eventType,
+      timestamp: Date.now(),
+      item: eventRecord
+    })
+  }).promise();
+}; // end streamPublish
+
 
 export const kinesisStreamEventPromisifier = async ( queueEvents, eventProcessorFunction, target1, target2 ) => {
   logger.info( "in k promisifier : ", queueEvents );
