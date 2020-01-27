@@ -14,6 +14,11 @@ const sessionRequestSchema = Joi.object({
 export const validateSessionRequest = ( object ) => {
   return validate( sessionRequestSchema, object )
 };
+
+const EVENT_TYPES = {
+  INSTRUMENT_TOKENIZED: "INSTRUMENT_TOKENIZED"
+};
+
 const MASK_SCHEMES = {
   ONE_TWO: "ONE_TWO",
   FOUR_THREE: "FOUR_THREE"
@@ -49,6 +54,7 @@ const ERROR_TYPES = {
 };
 export const vault_metadata = {
   ERROR_TYPES,
+  EVENT_TYPES,
   INTERESTING_GLOBAL_EVENTS,
   JOI_ERRORS,
   MASK_SCHEMES,

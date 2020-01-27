@@ -8,10 +8,11 @@
 const { GLOBAL_SERVICE_BUS } = process.env;
 const logger = require( 'log-winston-aws-level' );
 
-import { vault_metadata } from "../../schema/vault.schema"
 import { generatePartitionKey, streamPublish } from "../awsHelpers/kinesis.helper.library";
 import { deindexDynamoRecord } from "../awsHelpers/dynamoCRUD.helper.library";
 import { dynamoStreamEventPromisifier } from "../awsHelpers/dynamoStream.helper.library";
+import { vault_metadata } from "../../schema/vault.schema"
+const { EVENT_TYPES, RECORD_TYPES } = vault_metadata;
 
 export const  processTableStreamEvents = async ( tableUpdateAssembly, stream ) => {
   return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
@@ -31,12 +32,14 @@ const processTableStreamEvent = async ( record, stream ) => {
 
 const processTableInsertEvent = async ( record, stream ) => {
   logger.info( "inside processTableInsertEvent : ", record );
-  const { newRec: eventRecord } = record;
+  const { newRec } = record;
+  const { recordType } = newRec;
+
   // put the event on the stream;
   try {
     const busResponse = await streamPublish(
-      deindexDynamoRecord( eventRecord ),
-      eventRecord.recordType,
+      deindexDynamoRecord( newRec ),
+      calculateNewRecordEvent( newRec ),
       generatePartitionKey(),
       GLOBAL_SERVICE_BUS,
       stream );
@@ -46,6 +49,19 @@ const processTableInsertEvent = async ( record, stream ) => {
     throw err;
   }
 }; // end processTableInsertEvent
+
+const calculateNewRecordEvent = ( record ) => {
+  const { recordType } = record;
+  const payloadRecord = {
+    record: record,
+    eventType: calculateNewRecordEvent( record )
+  };
+  if( recordType === RECORD_TYPES.TOKENISED_INSTRUMENT ) {
+    payloadRecord.eventType = EVENT_TYPES.INSTRUMENT_TOKENIZED
+  }
+  logger.info("PAYLOAD REC:  ", payloadRecord );
+  return payloadRecord;
+}; // end calculateNewRecordEvent
 
 const processTableModifyEvent = async ( record, stream ) => {
   // ONLY IF SUBMITTED INSTRUMENT FIRE

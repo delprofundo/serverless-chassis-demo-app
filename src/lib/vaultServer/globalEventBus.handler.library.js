@@ -11,7 +11,7 @@ const {
 } = process.env;
 
 const logger = require( 'log-winston-aws-level' );
-import {queuePush} from "../awsHelpers/queue.helper.library";
+import { queuePush } from "../awsHelpers/queue.helper.library";
 import { kinesisStreamEventPromisifier } from "../awsHelpers/kinesis.helper.library";
 import { vault_metadata } from "../../schema/vault.schema"
 const { REQUEST_TYPES, RECORD_TYPES, INTERESTING_GLOBAL_EVENTS } = vault_metadata;

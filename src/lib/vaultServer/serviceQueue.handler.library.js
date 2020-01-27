@@ -129,11 +129,15 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     throw Error( "no valid card present in session" );
   }
   const { instrumentId } =  sessionRecord
-  const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry } = instrumentRecord;
-  const tokensiedCard = {
+  const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry, payerId } = instrumentRecord;
+
+  const tokenId = uuid.v4();
+
+  const tokenizedInstrument = {
+    hashKey: payerId,
+    rangeKey: `${ RECORD_TYPES.TOKENISED_INSTRUMENT}#${ instrumentId }`,
     recordType: RECORD_TYPES.TOKENISED_INSTRUMENT,
-    tokenId: uuid.v4(),
-    instrumentId,
+    tokenId: tokenId,
     instrumentType,
     cardholderName,
     cardScheme,
@@ -142,11 +146,12 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     maskedExpiry: `***${ cardExpiry.slice(-1)}`,
     encryptedCardData: encryptString(`${ cardNumber }-${ cardExpiry }-${ cardCcv }`, CC_SIGNING_KEY )
   };
+  logger.info('THE UPDATED CARD WITH ENCRYPTIONS : ', tokenizedInstrument );
   try {
-    const dbResponse = await dynamoPut( tokensiedCard, SERVICE_TABLE, db );
-    logger.info( "success putting tokenised card", dbResponse );
+    const dbResponse = await dynamoPut( tokenizedInstrument, SERVICE_TABLE, db );
+    logger.info( "success putting tokenized instrument", dbResponse );
   } catch( err ) {
-    logger.error( "error pushing tokenised card to collection : ", err );
+    logger.error( "error pushing tokenized instrument to collection : ", err );
     throw err;
   }
 }; // end processSubmittedInstrumentSession
