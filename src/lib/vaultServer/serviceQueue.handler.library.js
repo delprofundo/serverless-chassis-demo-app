@@ -5,7 +5,7 @@
  * delProfundo (@brunowatt)
  * bruno@hypermedia.tech
  ********************************************/
-import {dynamoPut} from "../awsHelpers/dynamoCRUD.helper.library";
+import {deindexDynamoRecord, dynamoPut} from "../awsHelpers/dynamoCRUD.helper.library";
 
 const {
   CC_SIGNING_KEY,
@@ -92,9 +92,9 @@ const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
   }
 }; // end processAppendInstrumentSession
 
-const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
-  logger.info( "inside processSubmittedInstrumentSession : ", sessionRecord );
-  const { sessionToken, recordType } = sessionRecord;
+const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
+  logger.info( "inside processSubmittedInstrumentSession : ", incomingSession );
+  const { sessionToken, recordType } = incomingSession;
   // 1. get the record.
   const queryParams = {
     TableName: SERVICE_TABLE,
@@ -107,8 +107,27 @@ const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
     }
   };
   console.log( "query: ", queryParams );
-  let sessionRecords = await db.query( queryParams ).promise();
-  logger.info("SESSION RECORDS : ", sessionRecords );
+
+  let instrumentRecord;
+  let sessionRecord;
+
+  try {
+    let dbResponse = await db.query( queryParams ).promise();
+    logger.info("SESSION RECORDS : ", dbResponse );
+    instrumentRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items ));
+    logger.info("inst : ", instrumentRecord);
+    sessionRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items ));
+    logger.info( "sesh : ", sessionRecord );
+  } catch ( err ) {
+    logger.error( "error SUBMITTING INSTRUMENT SESSION", err );
+    throw err;
+  }
+
+  if( !validateStoredCreditCard( instrumentRecord )) {
+    logger.error( "none of the vault session records are cards" );
+    throw Error( "no valid card present in session" );
+  }
+
   // 2. check the record is complete and session has not expired (maybe not the expiry? );
   // 3. encrypt card-csv-expiry in one string
   // 4. create masked card
@@ -116,3 +135,7 @@ const processSubmittedInstrumentSession = async ( sessionRecord, db ) => {
   // 6. generate new token
   // 7. remove pyerId and instrumentId
 }; // end processSubmittedInstrumentSession
+
+const getRecordFromUniqueSet = ( collection, recordType ) => {
+  return collection.find( x => x.rangeKey === recordType )
+};
