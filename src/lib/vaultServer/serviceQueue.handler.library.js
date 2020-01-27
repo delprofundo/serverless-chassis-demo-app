@@ -124,7 +124,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     throw err;
   }
   // 2. check the record is complete and session has not expired (maybe not the expiry? );
-  if( !validateStoredCreditCard( instrumentRecord )) {
+  if( !validateInboundCreditCard( instrumentRecord )) {
     logger.error( "none of the vault session records are cards" );
     throw Error( "no valid card present in session" );
   }
