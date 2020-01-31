@@ -8,8 +8,8 @@
  */
 
 const logger = require( "log-winston-aws-level" );
-const AWS = require( "aws-sdk" );
 const randomString = require( "randomstring" );
+const uuid = require( "uuid" );
 
 export const streamPublish = async ( eventRecord, eventType, partitionKey, streamAddress, stream ) => {
   return await stream.putRecord({
