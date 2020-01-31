@@ -62,9 +62,9 @@ const calculateNewRecordEvent = ( record ) => {
   logger.info("in calculateNewRecordEvent : ", record );
   const { recordType } = record;
   logger.info (" RECO TYPE : ", recordType );
-  const payloadRecord = {
+  let payloadRecord = {
     record: record,
-    eventType: calculateNewRecordEvent( record )
+    eventType: ""
   };
   if( recordType === RECORD_TYPES.TOKENIZED_INSTRUMENT ) {
     payloadRecord.eventType = EVENT_TYPES.INSTRUMENT_TOKENIZED
