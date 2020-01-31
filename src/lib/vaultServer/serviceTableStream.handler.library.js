@@ -35,10 +35,10 @@ const processTableInsertEvent = async ( record, stream ) => {
   const { newRec } = record;
   const { recordType } = newRec;
 
-  const calculatedEventType = calculateNewRecordEvent( newRec );
+  const calculatedEventType = calculateNewRecordEvent( recordType );
 
   logger.info( "calucated : ", calculatedEventType );
-  if ( calculatedEventType === 'undefined' ) {
+  if ( !calculatedEventType ) {
     logger.info( `new record of type ${ recordType } not handled`)
     return;
   }
