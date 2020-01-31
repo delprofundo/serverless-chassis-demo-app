@@ -36,14 +36,20 @@ const processTableInsertEvent = async ( record, stream ) => {
   const { recordType } = newRec;
   const calculatedEventType = calculateNewRecordEvent( recordType );
   logger.info( "calucated : ", calculatedEventType );
-  if ( !calculatedEventType ) {
+  let recordToShare = {};
+  switch( calculatedEventType ) {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
-    logger.info( `new record of type ${ recordType } not handled`);
-    return;
+    case EVENT_TYPES.INSTRUMENT_TOKENIZED:
+      const { cardholderName, encryptedCardData, ...payloadRecord } = deindexDynamoRecord( newRec );
+      recordToShare = { ...payloadRecord };
+      break;
+    default:
+      logger.info( `new record of type ${ recordType } not handled`);
+      return;
   }
   try {
     const busResponse = await streamPublish(
-      deindexDynamoRecord( newRec ),
+      { ...recordToShare },
       calculatedEventType,
       generatePartitionKey(),
       GLOBAL_SERVICE_BUS,
