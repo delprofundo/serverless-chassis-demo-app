@@ -36,13 +36,16 @@ const processTableInsertEvent = async ( record, stream ) => {
   const { recordType } = newRec;
 
   // put the event on the stream;
-  logger.info( "==============================X==============================")
+  logger.info( "==============================X==============================");
   const x = deindexDynamoRecord( newRec );
-  logger.info( "==============================Y==============================")
+  logger.info( x );
+  logger.info( "==============================Y==============================");
   const y = calculateNewRecordEvent( newRec );
-  logger.info( "==============================Z==============================")
+  logger.info( y );
+  logger.info( "==============================Z==============================");
   const z = generatePartitionKey();
-  logger.info( "==============================E==============================")
+  logger.info( z );
+  logger.info( "==============================E==============================");
 
   try {
     const busResponse = await streamPublish(
