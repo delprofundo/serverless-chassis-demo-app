@@ -25,6 +25,7 @@ import { unstring } from "./lib/awsHelpers/general.helper.library";
 
 const db = new AWS.DynamoDB.DocumentClient();
 const queue = new AWS.SQS();
+const stream = new AWS.Kinesis();
 
 ///                                            ///
 ///             EXPORTED FUNCTIONS             ///
@@ -161,7 +162,7 @@ export const serviceTableStreamHandler = async ( event ) => {
   };
   logger.info( "table update assembly : ", tableUpdateAssembly );
   try {
-   const workerResponse = await processTableStreamEvents( tableUpdateAssembly );
+   const workerResponse = await processTableStreamEvents( tableUpdateAssembly, stream );
    logger.info( "successfully processed stream events :", workerResponse );
   } catch ( err ) {
     logger.error( "error processing table stream event : ", err );
