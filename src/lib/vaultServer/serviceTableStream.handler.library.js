@@ -34,16 +34,13 @@ const processTableInsertEvent = async ( record, stream ) => {
   logger.info( "inside processTableInsertEvent : ", record );
   const { newRec } = record;
   const { recordType } = newRec;
-
   const calculatedEventType = calculateNewRecordEvent( recordType );
-
   logger.info( "calucated : ", calculatedEventType );
   if ( !calculatedEventType ) {
-    logger.info( `new record of type ${ recordType } not handled`)
+    //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
+    logger.info( `new record of type ${ recordType } not handled`);
     return;
   }
-  // put the event on the stream;
-  console.log("GLOBAL BUS : ", GLOBAL_SERVICE_BUS );
   try {
     const busResponse = await streamPublish(
       deindexDynamoRecord( newRec ),
@@ -51,7 +48,6 @@ const processTableInsertEvent = async ( record, stream ) => {
       generatePartitionKey(),
       GLOBAL_SERVICE_BUS,
       stream );
-    logger.info( "success pushing record onto bus", busResponse );
   } catch( err ) {
     logger.error( "error pushing record to shared service bus", err );
     throw err;
@@ -59,7 +55,6 @@ const processTableInsertEvent = async ( record, stream ) => {
 }; // end processTableInsertEvent
 
 const calculateNewRecordEvent = ( recordType ) => {
-  logger.info (" RECO TYPE : ", recordType );
   if( recordType === RECORD_TYPES.TOKENIZED_INSTRUMENT ) {
     return  EVENT_TYPES.INSTRUMENT_TOKENIZED;
   } else {

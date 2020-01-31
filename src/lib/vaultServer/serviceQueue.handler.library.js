@@ -134,8 +134,8 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     logger.error( "none of the vault session records are cards" );
     throw Error( "no valid card present in session" );
   }
-  const { instrumentId } =  sessionRecord
-  const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry, payerId } = instrumentRecord;
+  const { instrumentId, payerId } =  sessionRecord;
+  const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry } = instrumentRecord;
 
   const tokenId = uuid.v4();
 
