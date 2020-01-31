@@ -42,16 +42,12 @@ const processTableInsertEvent = async ( record, stream ) => {
   logger.info( "==============================Y==============================");
   const y = calculateNewRecordEvent( newRec );
   logger.info( y );
-  logger.info( "==============================Z==============================");
-  const z = generatePartitionKey();
-  logger.info( z );
-  logger.info( "==============================E==============================");
-
+  console.log("GLOBAL BUS : ", GLOBAL_SERVICE_BUS );
   try {
     const busResponse = await streamPublish(
       x,
       y,
-      z,
+      generatePartitionKey(),
       GLOBAL_SERVICE_BUS,
       stream );
     logger.info( "success pushing record onto bus" );
@@ -65,15 +61,11 @@ const calculateNewRecordEvent = ( record ) => {
   logger.info("in calculateNewRecordEvent : ", record );
   const { recordType } = record;
   logger.info (" RECO TYPE : ", recordType );
-  let payloadRecord = {
-    record: record,
-    eventType: ""
-  };
+  let res
   if( recordType === RECORD_TYPES.TOKENIZED_INSTRUMENT ) {
-    payloadRecord.eventType = EVENT_TYPES.INSTRUMENT_TOKENIZED
+    return  EVENT_TYPES.INSTRUMENT_TOKENIZED
   }
-  logger.info("PAYLOAD REC:  ", payloadRecord );
-  return payloadRecord;
+  throw new Error( `record type ${ recordType } not handled` );
 }; // end calculateNewRecordEvent
 
 const processTableModifyEvent = async ( record, stream ) => {
