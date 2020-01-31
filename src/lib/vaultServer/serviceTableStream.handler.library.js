@@ -48,6 +48,7 @@ const processTableInsertEvent = async ( record, stream ) => {
       generatePartitionKey(),
       GLOBAL_SERVICE_BUS,
       stream );
+    logger.info ( "bus response : ", busResponse );
   } catch( err ) {
     logger.error( "error pushing record to shared service bus", err );
     throw err;
