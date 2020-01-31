@@ -89,15 +89,6 @@ functions:
           path: /instruments/{sessionToken}
           method: put
           cors: true
-  submitInstrumentSession:
-    handler: src/handler.submitInstrumentSession
-    name: ${self:provider.stage}-${self:custom.grub}-submitInstrumentSession
-    description: takes card data from instrument session, parses and forwards
-    events:
-      - http:
-          path: /instruments/{sessionToken}/submit
-          method: put
-          cors: true
   serviceQueueHandler:
     handler: src/handler.serviceQueueHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler

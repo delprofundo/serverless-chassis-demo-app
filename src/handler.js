@@ -31,23 +31,6 @@ const stream = new AWS.Kinesis();
 ///             EXPORTED FUNCTIONS             ///
 ///                                            ///
 //////////////////////////////////////////////////
-/**
- * requests that the information stored within the instrument
- * session be parsed and submitted for secure storage
- * @param event
- * @returns {Promise<>}
- */
-export const submitInstrumentSession = async ( event ) => {
-  logger.info( "inside submitInstrumentSession : ", event );
-  const { sessionToken } = event.pathParameters;
-  try {
-    const queueSubmissionResponse = await processSubmitInstrumentSession( sessionToken );
-    return ( RESifySuccess( queueSubmissionResponse ));
-  } catch( err ) {
-    logger.error( "error in submitInstrumentSession : ", err );
-    return RESifyErr( err );
-  }
-}; // end submitInstrumentSession
 
 /**
  * submit details to a current session. does not submit the session
