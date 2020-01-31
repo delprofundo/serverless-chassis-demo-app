@@ -15,7 +15,7 @@ provider:
   environment:
     DEPLOY_REGION: ${opt:region, self:provider.region}
     API_ROOT: ${self:custom.domainName}
-    SHARED_SERVICE_BUS: ${self:custom.sharedServiceBus}
+    GLOBAL_SERVICE_BUS: ${self:custom.sharedServiceBus}
     CC_SIGNING_KEY: ${self:custom.ccSigningKey}
     SERVICE_QUEUE:
       Ref: ServiceQueue
