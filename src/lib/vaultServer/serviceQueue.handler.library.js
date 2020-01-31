@@ -118,7 +118,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     logger.info("SESSION RECORDS : ", dbResponse );
     if( dbResponse.Count < 1 ) {
       // TODO : the submitted session arrived as it expired. need to back this out in the event source service
-      logger.info("session ahs expired, cancelling")
+      logger.info( "session has expired, cancelling" );
       return;
     }
     instrumentRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items, RECORD_TYPES.SUBMITTED_INSTRUMENT ));

@@ -36,11 +36,19 @@ const processTableInsertEvent = async ( record, stream ) => {
   const { recordType } = newRec;
 
   // put the event on the stream;
+  logger.info( "==============================X==============================")
+  const x = deindexDynamoRecord( newRec );
+  logger.info( "==============================Y==============================")
+  const y = calculateNewRecordEvent( newRec );
+  logger.info( "==============================Z==============================")
+  const z = generatePartitionKey();
+  logger.info( "==============================E==============================")
+
   try {
     const busResponse = await streamPublish(
-      deindexDynamoRecord( newRec ),
-      calculateNewRecordEvent( newRec ),
-      generatePartitionKey(),
+      x,
+      y,
+      z,
       GLOBAL_SERVICE_BUS,
       stream );
     logger.info( "success pushing record onto bus" );
@@ -51,7 +59,9 @@ const processTableInsertEvent = async ( record, stream ) => {
 }; // end processTableInsertEvent
 
 const calculateNewRecordEvent = ( record ) => {
+  logger.info("in calculateNewRecordEvent : ", record );
   const { recordType } = record;
+  logger.info (" RECO TYPE : ", recordType );
   const payloadRecord = {
     record: record,
     eventType: calculateNewRecordEvent( record )
