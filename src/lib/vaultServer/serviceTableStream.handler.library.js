@@ -33,14 +33,14 @@ const processTableStreamEvent = async ( record, stream ) => {
 const processTableInsertEvent = async ( record, stream ) => {
   logger.info( "inside processTableInsertEvent : ", record );
   const { newRec } = record;
-  const { recordType } = newRec;
+  const { recordType, processRec } = deindexDynamoRecord( newRec );
   const calculatedEventType = calculateNewRecordEvent( recordType );
   logger.info( "calucated : ", calculatedEventType );
   let recordToShare = {};
   switch( calculatedEventType ) {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
-      const { cardholderName, encryptedCardData, ...payloadRecord } = deindexDynamoRecord( newRec );
+      const { cardholderName, encryptedCardData, ...payloadRecord } = processRec;
       recordToShare = { ...payloadRecord };
       break;
     default:
