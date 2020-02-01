@@ -46,13 +46,14 @@ const processInboundEvent = async ( queueEvent, db ) => {
 
 const processNewInstrumentSession = async ( sessionRequest, db ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
+  const { instrumentId, payerId, sessionToken, redirectUrl } = sessionRequest;
   const record = {
-    instrumentId: uuid.v4(),
+    instrumentId: instrumentId,
     recordType: RECORD_TYPES.INSTRUMENT_SESSION,
-    sessionRedirectUrl: sessionRequest.redirectUrl,
-    payerId: sessionRequest.payerId,
-    sessionToken: sessionRequest.sessionToken,
-    hashKey: sessionRequest.sessionToken,
+    sessionRedirectUrl: redirectUrl,
+    payerId: payerId,
+    sessionToken: sessionToken,
+    hashKey: sessionToken,
     rangeKey: RECORD_TYPES.INSTRUMENT_SESSION,
     recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
   };
