@@ -17,7 +17,7 @@ const { EVENT_TYPES, RECORD_TYPES } = vault_metadata;
 import { unstring } from "../lib/awsHelpers/general.helper.library";
 import { deindexDynamoRecord } from "../lib/awsHelpers/dynamoCRUD.helper.library";
 import { generatePartitionKey, streamPublish } from "../lib/awsHelpers/kinesis.helper.library";
-import { dynamoStreamEventPromisifier } from "../lib/awsHelpers/dynamoStream.helper.library";
+import { streamEventPromisifier } from "../lib/awsHelpers/dynamoStream.helper.library";
 
 /**
  * changes to items in the service table spawn events.
@@ -25,8 +25,8 @@ import { dynamoStreamEventPromisifier } from "../lib/awsHelpers/dynamoStream.hel
  * @param event
  * @returns {Promise<void>}
  */
-export const serviceTableStreamHandler = async ( event ) => {
-  logger.info( "inside serviceTableStreamHandler", event );
+export const tableStreamHandler = async ( event ) => {
+  logger.info( "inside tableStreamHandler", event );
   const tableUpdateAssembly = {
     incomingRecords: [ ...unstring( event.Records )]
   };
@@ -38,10 +38,10 @@ export const serviceTableStreamHandler = async ( event ) => {
     logger.error( "error processing table stream event : ", err );
     throw err;
   }
-}; // end serviceTableStreamHandler
+}; // end tableStreamHandler
 
 export const processTableStreamEvents = async ( tableUpdateAssembly ) => {
-  return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
+  return streamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
 }; // end processTableStreamEvents
 
 const processTableStreamEvent = async ( record, stream ) => {

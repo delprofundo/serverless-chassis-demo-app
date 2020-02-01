@@ -85,17 +85,17 @@ functions:
           path: /instruments/{sessionToken}
           method: put
           cors: true
-  serviceQueueHandler:
-    handler: src/eventHandlers/queue.serviceQueueHandler
-    name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
+  queueHandler:
+    handler: src/eventHandlers/queue.queueHandler
+    name: ${self:provider.stage}-${self:custom.grub}-queueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
       - sqs:
           arn:
             Fn::GetAtt: [ ServiceQueue, Arn ]
-  serviceTableStreamHandler:
-    handler: src/eventHandlers/dbStream.serviceTableStreamHandler
-    name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
+  tableStreamHandler:
+    handler: src/eventHandlers/dbStream.tableStreamHandler
+    name: ${self:provider.stage}-${self:custom.grub}-tableStreamHandler
     description: processes messages that cross the ingress queue.
     events:
       - stream:

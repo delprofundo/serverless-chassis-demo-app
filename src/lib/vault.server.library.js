@@ -8,6 +8,7 @@
 const {
   SERVICE_QUEUE,
   SERVICE_TABLE,
+  CC_SIGNING_KEY,
   DEPLOY_REGION
 } = process.env;
 
@@ -23,7 +24,8 @@ const moment = require( 'moment' );
 import {
   validateInboundCreditCard,
 } from "../schema/creditCard.schema";
-import { dynamoGet, dynamoPut } from "./awsHelpers/dynamoCRUD.helper.library";
+import {encryptString, maskIdentifier} from "treasury-helpers";
+import {deindexDynamoRecord, dynamoGet, dynamoPut} from "./awsHelpers/dynamoCRUD.helper.library";
 import { queuePush } from "./awsHelpers/queue.helper.library";
 import { vault_metadata } from "../schema/vault.schema"
 const {
@@ -128,3 +130,75 @@ export const processAppendInstrumentSession = async ( incomingInstrument ) => {
     throw err;
   }
 }; // end processAppendInstrumentSession
+
+export const processSubmittedInstrumentSession = async ( incomingSession ) => {
+  logger.info( "inside processSubmittedInstrumentSession : ", incomingSession );
+  const { sessionToken, recordType } = incomingSession;
+  // 1. get the record.
+  const queryParams = {
+    TableName: SERVICE_TABLE,
+    KeyConditionExpression: "#HASH_KEY = :hash_key",
+    ExpressionAttributeValues: {
+      ":hash_key": sessionToken
+    },
+    ExpressionAttributeNames: {
+      "#HASH_KEY": "hashKey"
+    }
+  };
+  console.log( "query: ", queryParams );
+
+  let instrumentRecord;
+  let sessionRecord;
+
+  try {
+
+    let dbResponse = await db.query( queryParams ).promise();
+    logger.info("SESSION RECORDS : ", dbResponse );
+    if( dbResponse.Count < 1 ) {
+      // TODO : the submitted session arrived as it expired. need to back this out in the event source service
+      logger.info( "session has expired, cancelling" );
+      return;
+    }
+    instrumentRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items, RECORD_TYPES.SUBMITTED_INSTRUMENT ));
+    sessionRecord = deindexDynamoRecord(getRecordFromUniqueSet( dbResponse.Items, RECORD_TYPES.INSTRUMENT_SESSION ));
+  } catch ( err ) {
+    logger.error( "error SUBMITTING INSTRUMENT SESSION", err );
+    throw err;
+  }
+  if( !validateInboundCreditCard( instrumentRecord )) {
+    logger.error( "none of the vault session records are cards" );
+    throw Error( "no valid card present in session" );
+  }
+  const { instrumentId } =  sessionRecord;
+  const {
+    cardNumber, cardExpiry, cardCcv, instrumentType,
+    cardholderName, cardScheme, cardCountry
+  } = instrumentRecord;
+  const tokenId = uuid.v4();
+  const tokenizedInstrument = {
+    hashKey: tokenId,
+    rangeKey: `${ RECORD_TYPES.TOKENIZED_INSTRUMENT }#${ instrumentId }`,
+    recordType: RECORD_TYPES.TOKENIZED_INSTRUMENT,
+    tokenId: tokenId,
+    instrumentType,
+    instrumentId,
+    cardholderName,
+    cardScheme,
+    cardCountry,
+    maskedCardNumber: maskIdentifier( cardNumber ),
+    maskedExpiry: `***${ cardExpiry.slice( -1 )}`,
+    encryptedCardData: encryptString(`${ cardNumber }-${ cardExpiry }-${ cardCcv }`, CC_SIGNING_KEY )
+  };
+  logger.info('THE UPDATED CARD WITH ENCRYPTIONS : ', tokenizedInstrument );
+  try {
+    const dbResponse = await dynamoPut( tokenizedInstrument, SERVICE_TABLE, db );
+    logger.info( "success putting tokenized instrument", dbResponse );
+  } catch( err ) {
+    logger.error( "error pushing tokenized instrument to collection : ", err );
+    throw err;
+  }
+}; // end processSubmittedInstrumentSession
+
+const getRecordFromUniqueSet = ( collection, recordType ) => {
+  return collection.find( x => x.rangeKey === recordType )
+};
