@@ -141,8 +141,8 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
   const tokenId = uuid.v4();
 
   const tokenizedInstrument = {
-    hashKey: payerId,
-    rangeKey: `${ RECORD_TYPES.TOKENIZED_INSTRUMENT}#${ instrumentId }`,
+    hashKey: tokenId,
+    rangeKey: `${ RECORD_TYPES.TOKENIZED_INSTRUMENT }#${ instrumentId }`,
     recordType: RECORD_TYPES.TOKENIZED_INSTRUMENT,
     tokenId: tokenId,
     instrumentType,
@@ -150,7 +150,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     cardScheme,
     cardCountry,
     maskedCardNumber: maskIdentifier( cardNumber ),
-    maskedExpiry: `***${ cardExpiry.slice(-1)}`,
+    maskedExpiry: `***${ cardExpiry.slice( -1 )}`,
     encryptedCardData: encryptString(`${ cardNumber }-${ cardExpiry }-${ cardCcv }`, CC_SIGNING_KEY )
   };
   logger.info('THE UPDATED CARD WITH ENCRYPTIONS : ', tokenizedInstrument );
