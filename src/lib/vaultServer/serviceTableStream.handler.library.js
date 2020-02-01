@@ -42,6 +42,7 @@ const processTableInsertEvent = async ( record, stream ) => {
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
       const { cardholderName, encryptedCardData, ...recordToShare } = processRec;
       payloadRecord = { ...recordToShare };
+      logger.info( "record to share does it have instrumentId: ", payloadRecord );
       break;
     default:
       logger.info( `new record of type ${ recordType } not handled`);
