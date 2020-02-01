@@ -2,7 +2,7 @@
   "name": "gbank_vault_service_api",
   "version": "0.1.0",
   "description": "vault Service API Interface",
-  "main": "src/handler.js",
+  "main": "src/eventHandlers/handler.js",
   "scripts": {
     "deploy:dev": "node ./node_modules/serverless/bin/serverless deploy -v --stage dev --region us-east-1",
     "deploy:uat": "node ./node_modules/serverless/bin/serverless deploy -v --stage uat --region ap-southeast-2",

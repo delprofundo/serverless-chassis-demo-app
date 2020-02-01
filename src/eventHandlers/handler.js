@@ -9,18 +9,18 @@ const logger = require("log-winston-aws-level");
 const AWSXRay = require("aws-xray-sdk-core");
 const AWS = AWSXRay.captureAWS(require("aws-sdk"));
 AWS.config.update({ region: DEPLOY_REGION });
-const util = require( "./lib/util.server.library" );
+const util = require( "../lib/util.server.library" );
 
 import {
   appendInstrument
-} from "./lib/vaultServer/vault.server.library"
-import { processServiceQueueMessages } from "./lib/vaultServer/serviceQueue.handler.library"
-import { processTableStreamEvents } from "./lib/vaultServer/serviceTableStream.handler.library"
+} from "../lib/vaultServer/vault.server.library"
+import { processServiceQueueMessages } from "../lib/vaultServer/serviceQueue.handler.library"
+import { processTableStreamEvents } from "../lib/vaultServer/serviceTableStream.handler.library"
 import {
   RESifySuccess,
   RESifyErr
-} from "./lib/awsHelpers/RESifier.representor.library";
-import { unstring } from "./lib/awsHelpers/general.helper.library";
+} from "../lib/awsHelpers/RESifier.representor.library";
+import { unstring } from "../lib/awsHelpers/general.helper.library";
 
 const db = new AWS.DynamoDB.DocumentClient();
 const queue = new AWS.SQS();

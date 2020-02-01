@@ -105,9 +105,9 @@ functions:
           startingPosition: TRIM_HORIZON
           type: dynamodb
           enabled: true
-  sharedServiceBusEventHandler:
-    handler: src/bus.sharedServiceBusEventHandler
-    name: ${self:provider.stage}-${self:custom.grub}-sharedServiceBusEventHandler
+  busEventHandler:
+    handler: src/bus.busEventHandler
+    name: ${self:provider.stage}-${self:custom.grub}-busEventHandler
     description: process messages from the application's shared service bus
     events:
       - stream:
