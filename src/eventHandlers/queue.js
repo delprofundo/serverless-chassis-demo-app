@@ -1,30 +1,48 @@
-/********************************************
- * generic_pay
- * vault service queue hander
- * 17 Jan 2020
- * delProfundo (@brunowatt)
+/**
+ * service queue handler
+ * delprofundo (@brunowatt)
  * bruno@hypermedia.tech
- ********************************************/
-import {deindexDynamoRecord, dynamoPut} from "../awsHelpers/dynamoCRUD.helper.library";
-
+ * @module vault/queueHanlder
+ */
 const {
   CC_SIGNING_KEY,
   SERVICE_TABLE
 } = process.env;
 
-const moment = require( 'moment' );
-const uuid = require( "uuid" );
-const logger = require( 'log-winston-aws-level' );
-
+import { unstring } from "../lib/awsHelpers/general.helper.library";
+//import { processServiceQueueMessages } from "../lib/vaultServer/serviceQueue.handler.library";
+import {
+  processAppendInstrumentSession, processNewInstrumentSession
+} from "../lib/vaultServer/vault.server.library";
+import { queueEventPromisifier } from "../lib/awsHelpers/queue.helper.library";
+import { vault_metadata } from "../schema/vault.schema";
+import { deindexDynamoRecord, dynamoPut } from "../lib/awsHelpers/dynamoCRUD.helper.library";
+import { validateInboundCreditCard } from "../schema/creditCard.schema";
 import { encryptString, maskIdentifier } from "treasury-helpers";
+const { REQUEST_TYPES, RECORD_TYPES } = vault_metadata;
 
-import { queueEventPromisifier } from "../awsHelpers/queue.helper.library";
-import {validateInboundCreditCard, validateStoredCreditCard} from "../../schema/creditCard.schema";
-import { vault_metadata } from "../../schema/vault.schema";
-const { REQUEST_TYPES, RECORD_TYPES, SESSION_VARIABLES, MASK_SCHEMES } = vault_metadata;
+/**
+ * receives service bus messages and hands them down to be processed
+ * successful ending clears the messages, error means they will be reprocessed
+ * as such all commands that cross the queue must be idempotent.
+ * @param event
+ * @returns {Promise<void>}
+ */
+export const serviceQueueHandler = async ( event ) => {
+  logger.info( "inside vault service queue handler : ", event );
+  const queueEvents = [ ...unstring( event.Records )];
+  logger.info( "queue events : ", queueEvents );
+  try {
+    await processServiceQueueMessages( queueEvents );
+    logger.info( "success processing queue events : " );
+  } catch( err ) {
+    logger.error( "error processing queue events : ", err );
+    throw err;
+  }
+}; // end serviceQueueHandler
 
-export const processServiceQueueMessages = async ( queueEvents, db ) => {
-  return queueEventPromisifier( queueEvents, processInboundEvent, db );
+export const processServiceQueueMessages = async ( queueEvents ) => {
+  return queueEventPromisifier( queueEvents, processInboundEvent );
 }; // end processServiceQueueMessages
 
 const processInboundEvent = async ( queueEvent, db ) => {
@@ -32,68 +50,17 @@ const processInboundEvent = async ( queueEvent, db ) => {
   const { requestType, eventPayload } = queueEvent;
   switch ( requestType ) {
     case REQUEST_TYPES.VAULT_SESSION_REQUESTED:
-      return processNewInstrumentSession( eventPayload, db );
+      return processNewInstrumentSession( eventPayload );
     case REQUEST_TYPES.APPEND_INSTRUMENT_TO_SESSION:
-      return processAppendInstrumentSession( eventPayload, db );
+      return processAppendInstrumentSession( eventPayload );
     case REQUEST_TYPES.VAULT_SESSION_SUBMITTED:
-      return processSubmittedInstrumentSession( eventPayload, db );
+      return processSubmittedInstrumentSession( eventPayload );
     default:
       //TODO : push record to dump
       logger.info( "processInboundEvent switch fall through request type:", requestType );
       return;
   }
 }; // end processInboundEvent
-
-const processNewInstrumentSession = async ( sessionRequest, db ) => {
-  logger.info( "inside processNewInstrumentSession ", sessionRequest );
-  const { instrumentId, payerId, sessionToken, redirectUrl } = sessionRequest;
-  const record = {
-    instrumentId: instrumentId,
-    recordType: RECORD_TYPES.INSTRUMENT_SESSION,
-    sessionRedirectUrl: redirectUrl,
-    payerId: payerId,
-    sessionToken: sessionToken,
-    hashKey: sessionToken,
-    rangeKey: RECORD_TYPES.INSTRUMENT_SESSION,
-    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
-  };
-  try {
-    const putResponse = await dynamoPut( record, SERVICE_TABLE, db );
-    logger.info( "successfully put session to collection", putResponse );
-  } catch( err ) {
-    logger.error( "error processing new instrument session" );
-    throw err;
-  }
-}; // end processNewInstrumentSession
-
-const processAppendInstrumentSession = async ( incomingInstrument, db ) => {
-  const { instrumentId } = incomingInstrument;
-  logger.info ( "inside processAppendInstrumentSession2", incomingInstrument );
-  const { sessionToken, ...inboundRecord } = incomingInstrument;
-  let validCard;
-  try {
-    validCard = validateInboundCreditCard( inboundRecord );
-  } catch ( err ) {
-    logger.error( "error : in val ", err );
-    throw err;
-  }
-  const instrument = {
-    ...validCard,
-    recordType: RECORD_TYPES.SUBMITTED_INSTRUMENT,
-    hashKey: sessionToken,
-    rangeKey: RECORD_TYPES.SUBMITTED_INSTRUMENT,
-    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix()
-  };
-  console.log("INSTRUMENTED :", instrument );
-  logger.info("parsed and can persist", instrument );
-  try {
-    const putResponse = await dynamoPut( instrument, SERVICE_TABLE, db );
-    logger.info( "successfully put instrument to collection", putResponse );
-  } catch( err ) {
-    logger.error( "error processing new instrument", err );
-    throw err;
-  }
-}; // end processAppendInstrumentSession
 
 const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
   logger.info( "inside processSubmittedInstrumentSession : ", incomingSession );
@@ -115,6 +82,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
   let sessionRecord;
 
   try {
+
     let dbResponse = await db.query( queryParams ).promise();
     logger.info("SESSION RECORDS : ", dbResponse );
     if( dbResponse.Count < 1 ) {
@@ -135,7 +103,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     logger.error( "none of the vault session records are cards" );
     throw Error( "no valid card present in session" );
   }
-  const { instrumentId, payerId } =  sessionRecord;
+  const { instrumentId } =  sessionRecord;
   const { cardNumber, cardExpiry, cardCcv, instrumentType, cardholderName, cardScheme, cardCountry } = instrumentRecord;
 
   const tokenId = uuid.v4();
@@ -165,10 +133,5 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
 }; // end processSubmittedInstrumentSession
 
 const getRecordFromUniqueSet = ( collection, recordType ) => {
-  logger.info ( "IN GETG REC SET COLL :", collection );
-  logger.info ( "IN GETG REC TYPE :", recordType );
-
   return collection.find( x => x.rangeKey === recordType )
 };
-
-

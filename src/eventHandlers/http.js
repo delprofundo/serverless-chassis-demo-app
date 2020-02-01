@@ -14,7 +14,6 @@ const util = require( "../lib/util.server.library" );
 import {
   appendInstrument
 } from "../lib/vaultServer/vault.server.library"
-import { processServiceQueueMessages } from "../lib/vaultServer/serviceQueue.handler.library"
 import { processTableStreamEvents } from "../lib/vaultServer/serviceTableStream.handler.library"
 import {
   RESifySuccess,
@@ -22,8 +21,7 @@ import {
 } from "../lib/awsHelpers/RESifier.representor.library";
 import { unstring } from "../lib/awsHelpers/general.helper.library";
 
-const db = new AWS.DynamoDB.DocumentClient();
-const queue = new AWS.SQS();
+
 const stream = new AWS.Kinesis();
 
 /**
@@ -40,7 +38,7 @@ export const appendInstrumentSession = async ( event ) => {
   };
   logger.info( "INSTRUMENT ASS : ", instrumentAssembly );
   try {
-    const queueSubmissionResponse = await appendInstrument( instrumentAssembly, db, queue );
+    const queueSubmissionResponse = await appendInstrument( instrumentAssembly );
     logger.info( "successfully pushed request to queue : ", queueSubmissionResponse );
     const res = RESifySuccess(undefined, 302,  {"Location": queueSubmissionResponse.redirect} )
     logger.info( "RES : ", res );
@@ -76,31 +74,6 @@ export const echo = async( event ) => {
     return RESifyErr( err );
   }
 }; // end echo
-
-///                                            ///
-///            INGEST QUEUE HANDLERS           ///
-///                                            ///
-//////////////////////////////////////////////////
-
-/**
- * receives service bus messages and hands them down to be processed
- * successful ending clears the messages, error means they will be reprocessed
- * as such all commands that cross the queue must be idempotent.
- * @param event
- * @returns {Promise<void>}
- */
-export const serviceQueueHandler = async ( event ) => {
-  logger.info( "inside vault service queue handler : ", event );
-  const queueEvents = [ ...unstring( event.Records )];
-  logger.info( "queue events : ", queueEvents );
-  try {
-    await processServiceQueueMessages( queueEvents, db );
-    logger.info( "success processing queue events : " );
-  } catch( err ) {
-    logger.error( "error processing queue events : ", err );
-    throw err;
-  }
-}; // end serviceQueueHandler
 
 ///                                            ///
 ///            TABLE STREAM HANDLERS           ///

@@ -86,7 +86,7 @@ functions:
           method: put
           cors: true
   serviceQueueHandler:
-    handler: src/eventHandlers/http.serviceQueueHandler
+    handler: src/eventHandlers/queue.serviceQueueHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
