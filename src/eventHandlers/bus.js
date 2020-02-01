@@ -42,6 +42,7 @@ const processBusEvent = async ( event, queue ) => {
   switch( event.data.type ) {
     case INTERESTING_GLOBAL_EVENTS.VAULT_SESSION_REQUESTED:
     case INTERESTING_GLOBAL_EVENTS.VAULT_SESSION_SUBMITTED:
+      // TODO : should we change the event name?
       return await defaultPushToQueue( event, queue );
     default:
       logger.info( `uninteresting event of type ${ event.data.type  } ignored` );
