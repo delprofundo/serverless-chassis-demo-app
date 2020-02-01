@@ -20,11 +20,11 @@
   "license": "UNLICENSED",
   "homepage": "https://bitbucket.org/hypermediatech/vault-2.0-svc/src#readme",
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.5.5",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/node": "^7.8.4",
     "@babel/plugin-transform-runtime": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-env": "^7.8.4",
     "@babel/preset-stage-3": "^7.8.3",
     "@babel/register": "^7.5.5",
     "assert": "2.0.0",
@@ -46,7 +46,7 @@
     "mocha": "7.0.1",
     "nyc": "^15.0.0",
     "rewire": "4.0.1",
-    "serverless": "1.61.3",
+    "serverless": "^1.62.0",
     "serverless-plugin-bind-deployment-id": "^1.1.0",
     "serverless-plugin-tracing": "2.0.0",
     "serverless-plugin-warmup": "^4.8.0",
@@ -57,7 +57,7 @@
     "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.5.5",
+    "@babel/runtime": "^7.8.4",
     "@hapi/joi": "17.1.0",
     "aws-xray-sdk-core": "^2.3.4",
     "dynamo-stream-diff": "^0.1.0",
