@@ -146,6 +146,7 @@ const processSubmittedInstrumentSession = async ( incomingSession, db ) => {
     recordType: RECORD_TYPES.TOKENIZED_INSTRUMENT,
     tokenId: tokenId,
     instrumentType,
+    instrumentId,
     cardholderName,
     cardScheme,
     cardCountry,
