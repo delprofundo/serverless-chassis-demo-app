@@ -94,7 +94,7 @@ functions:
           arn:
             Fn::GetAtt: [ ServiceQueue, Arn ]
   serviceTableStreamHandler:
-    handler: src/eventHandlers/http.serviceTableStreamHandler
+    handler: src/eventHandlers/dbStream.serviceTableStreamHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
     description: processes messages that cross the ingress queue.
     events:

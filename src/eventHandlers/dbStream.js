@@ -1,20 +1,46 @@
-/********************************************
- * generic_pay
- * vault service dynamo stream handler
- * 17 Jan 2020
- * delProfundo (@brunowatt)
+/**
+ * db stream handler
+ * delprofundo (@brunowatt)
  * bruno@hypermedia.tech
- ********************************************/
-const { GLOBAL_SERVICE_BUS } = process.env;
-const logger = require( 'log-winston-aws-level' );
+ * @module vault/streamHandler
+ */
 
-import { generatePartitionKey, streamPublish } from "../awsHelpers/kinesis.helper.library";
-import { deindexDynamoRecord } from "../awsHelpers/dynamoCRUD.helper.library";
-import { dynamoStreamEventPromisifier } from "../awsHelpers/dynamoStream.helper.library";
-import { vault_metadata } from "../../schema/vault.schema"
+const { DEPLOY_REGION, GLOBAL_SERVICE_BUS } = process.env;
+const logger = require("log-winston-aws-level");
+const AWSXRay = require("aws-xray-sdk-core");
+const AWS = AWSXRay.captureAWS(require("aws-sdk"));
+AWS.config.update({ region: DEPLOY_REGION });
+const stream = new AWS.Kinesis();
+
+import { vault_metadata } from "../schema/vault.schema";
 const { EVENT_TYPES, RECORD_TYPES } = vault_metadata;
+import { unstring } from "../lib/awsHelpers/general.helper.library";
+import { deindexDynamoRecord } from "../lib/awsHelpers/dynamoCRUD.helper.library";
+import { generatePartitionKey, streamPublish } from "../lib/awsHelpers/kinesis.helper.library";
+import { dynamoStreamEventPromisifier } from "../lib/awsHelpers/dynamoStream.helper.library";
 
-export const  processTableStreamEvents = async ( tableUpdateAssembly, stream ) => {
+/**
+ * changes to items in the service table spawn events.
+ * this function captures those events and hands down to processors.
+ * @param event
+ * @returns {Promise<void>}
+ */
+export const serviceTableStreamHandler = async ( event ) => {
+  logger.info( "inside serviceTableStreamHandler", event );
+  const tableUpdateAssembly = {
+    incomingRecords: [ ...unstring( event.Records )]
+  };
+  logger.info( "table update assembly : ", tableUpdateAssembly );
+  try {
+    const workerResponse = await processTableStreamEvents( tableUpdateAssembly, stream );
+    logger.info( "successfully processed stream events :", workerResponse );
+  } catch ( err ) {
+    logger.error( "error processing table stream event : ", err );
+    throw err;
+  }
+}; // end serviceTableStreamHandler
+
+export const processTableStreamEvents = async ( tableUpdateAssembly ) => {
   return dynamoStreamEventPromisifier( tableUpdateAssembly, processTableStreamEvent, stream )
 }; // end processTableStreamEvents
 
@@ -30,7 +56,7 @@ const processTableStreamEvent = async ( record, stream ) => {
   }
 }; // end processTableStreamEvent
 
-const processTableInsertEvent = async ( record, stream ) => {
+const processTableInsertEvent = async ( record ) => {
   logger.info( "inside processTableInsertEvent : ", record );
   const { newRec } = record;
   const { recordType, ...processRec } = deindexDynamoRecord( newRec );
@@ -70,7 +96,7 @@ const calculateNewRecordEvent = ( recordType ) => {
   }
 }; // end calculateNewRecordEvent
 
-const processTableModifyEvent = async ( record, stream ) => {
+const processTableModifyEvent = async ( record ) => {
   // ONLY IF SUBMITTED INSTRUMENT FIRE
   //if( record.)
 };

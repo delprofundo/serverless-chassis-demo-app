@@ -22,10 +22,10 @@ const moment = require( 'moment' );
 
 import {
   validateInboundCreditCard,
-} from "../../schema/creditCard.schema";
-import { dynamoGet, dynamoPut } from "../awsHelpers/dynamoCRUD.helper.library";
-import { queuePush } from "../awsHelpers/queue.helper.library";
-import { vault_metadata } from "../../schema/vault.schema"
+} from "../schema/creditCard.schema";
+import { dynamoGet, dynamoPut } from "./awsHelpers/dynamoCRUD.helper.library";
+import { queuePush } from "./awsHelpers/queue.helper.library";
+import { vault_metadata } from "../schema/vault.schema"
 const {
   REQUEST_TYPES, RECORD_TYPES, RESOURCE_TYPES,
   ERROR_TYPES, JOI_ERRORS, SESSION_VARIABLES

@@ -13,16 +13,12 @@ const util = require( "../lib/util.server.library" );
 
 import {
   appendInstrument
-} from "../lib/vaultServer/vault.server.library"
-import { processTableStreamEvents } from "../lib/vaultServer/serviceTableStream.handler.library"
+} from "../lib/vault.server.library"
 import {
   RESifySuccess,
   RESifyErr
 } from "../lib/awsHelpers/RESifier.representor.library";
 import { unstring } from "../lib/awsHelpers/general.helper.library";
-
-
-const stream = new AWS.Kinesis();
 
 /**
  * submit details to a current session. does not submit the session
@@ -74,29 +70,3 @@ export const echo = async( event ) => {
     return RESifyErr( err );
   }
 }; // end echo
-
-///                                            ///
-///            TABLE STREAM HANDLERS           ///
-///                                            ///
-//////////////////////////////////////////////////
-
-/**
- * changes to items in the service table spawn events.
- * this function captures those events and hands down to processors.
- * @param event
- * @returns {Promise<void>}
- */
-export const serviceTableStreamHandler = async ( event ) => {
-  logger.info( "inside serviceTableStreamHandler", event );
-  const tableUpdateAssembly = {
-    incomingRecords: [ ...unstring( event.Records )]
-  };
-  logger.info( "table update assembly : ", tableUpdateAssembly );
-  try {
-   const workerResponse = await processTableStreamEvents( tableUpdateAssembly, stream );
-   logger.info( "successfully processed stream events :", workerResponse );
-  } catch ( err ) {
-    logger.error( "error processing table stream event : ", err );
-    throw err;
-  }
-}; // end serviceTableStreamHandler

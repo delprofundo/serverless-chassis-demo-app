@@ -2,7 +2,7 @@
  * service queue handler
  * delprofundo (@brunowatt)
  * bruno@hypermedia.tech
- * @module vault/queueHanlder
+ * @module vault/queueHandler
  */
 const {
   CC_SIGNING_KEY,
@@ -10,16 +10,15 @@ const {
 } = process.env;
 
 import { unstring } from "../lib/awsHelpers/general.helper.library";
-//import { processServiceQueueMessages } from "../lib/vaultServer/serviceQueue.handler.library";
+import { queueEventPromisifier } from "../lib/awsHelpers/queue.helper.library";
+import { deindexDynamoRecord, dynamoPut } from "../lib/awsHelpers/dynamoCRUD.helper.library";
+import { encryptString, maskIdentifier } from "treasury-helpers";
+import { vault_metadata } from "../schema/vault.schema";
+const { REQUEST_TYPES, RECORD_TYPES } = vault_metadata;
+import { validateInboundCreditCard } from "../schema/creditCard.schema";
 import {
   processAppendInstrumentSession, processNewInstrumentSession
-} from "../lib/vaultServer/vault.server.library";
-import { queueEventPromisifier } from "../lib/awsHelpers/queue.helper.library";
-import { vault_metadata } from "../schema/vault.schema";
-import { deindexDynamoRecord, dynamoPut } from "../lib/awsHelpers/dynamoCRUD.helper.library";
-import { validateInboundCreditCard } from "../schema/creditCard.schema";
-import { encryptString, maskIdentifier } from "treasury-helpers";
-const { REQUEST_TYPES, RECORD_TYPES } = vault_metadata;
+} from "../lib/vault.server.library";
 
 /**
  * receives service bus messages and hands them down to be processed
