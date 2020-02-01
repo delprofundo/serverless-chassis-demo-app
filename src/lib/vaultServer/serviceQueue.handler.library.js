@@ -20,7 +20,7 @@ import { encryptString, maskIdentifier } from "treasury-helpers";
 
 import { queueEventPromisifier } from "../awsHelpers/queue.helper.library";
 import {validateInboundCreditCard, validateStoredCreditCard} from "../../schema/creditCard.schema";
-import { vault_metadata } from "../../schema/vault.schema"
+import { vault_metadata } from "../../schema/vault.schema";
 const { REQUEST_TYPES, RECORD_TYPES, SESSION_VARIABLES, MASK_SCHEMES } = vault_metadata;
 
 export const processServiceQueueMessages = async ( queueEvents, db ) => {

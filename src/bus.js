@@ -15,6 +15,7 @@ AWS.config.update({ region: DEPLOY_REGION });
 import { kinesisStreamEventPromisifier } from "./lib/awsHelpers/kinesis.helper.library";
 import { queuePush } from "./lib/awsHelpers/queue.helper.library";
 
+import { vault_metadata } from "./schema/vault.schema";
 const { REQUEST_TYPES, RECORD_TYPES, INTERESTING_GLOBAL_EVENTS } = vault_metadata;
 
 const queue = new AWS.SQS();
