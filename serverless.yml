@@ -77,7 +77,7 @@ custom:
     prod: ap-southeast-2
 functions:
   appendInstrumentSession:
-    handler: src/handler.appendInstrumentSession
+    handler: src/eventHandlers/http.appendInstrumentSession
     name: ${self:provider.stage}-${self:custom.grub}-appendInstrumentSession
     description: append instrument data to an active vault session
     events:
@@ -86,7 +86,7 @@ functions:
           method: put
           cors: true
   serviceQueueHandler:
-    handler: src/handler.serviceQueueHandler
+    handler: src/eventHandlers/http.serviceQueueHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceQueueHandler
     description: generic queue to handle unsafe inbound requests (put, post)
     events:
@@ -94,7 +94,7 @@ functions:
           arn:
             Fn::GetAtt: [ ServiceQueue, Arn ]
   serviceTableStreamHandler:
-    handler: src/handler.serviceTableStreamHandler
+    handler: src/eventHandlers/http.serviceTableStreamHandler
     name: ${self:provider.stage}-${self:custom.grub}-serviceTableStreamHandler
     description: processes messages that cross the ingress queue.
     events:
@@ -106,7 +106,7 @@ functions:
           type: dynamodb
           enabled: true
   busEventHandler:
-    handler: src/bus.busEventHandler
+    handler: src/eventHandlers/bus.busEventHandler
     name: ${self:provider.stage}-${self:custom.grub}-busEventHandler
     description: process messages from the application's shared service bus
     events:
@@ -116,7 +116,7 @@ functions:
           startingPosition: TRIM_HORIZON
           enabled: true
   pingService:
-    handler: src/handler.ping
+    handler: src/eventHandlers/http.ping
     name: ${self:provider.stage}-${self:custom.grub}-ping
     description: a simple payload ping GET test
     events:
@@ -125,7 +125,7 @@ functions:
         method: get
         cors: true
   echoService:
-    handler: src/handler.echo
+    handler: src/eventHandlers/http.echo
     name: ${ self:provider.stage}-${self:custom.grub}-echo
     description: a simple payload echo POST test
     events:
