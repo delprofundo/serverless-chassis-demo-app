@@ -34,12 +34,11 @@ export const sharedServiceBusEventHandler = async ( event ) => {
   }
 }; // end sharedServiceBusEventHandler
 
-export const processBusStreamEvents = async (busEvents, queue, db ) => {
-  // extract the
-  return kinesisStreamEventPromisifier( busEvents, processGlobalBusEvents, queue, db )
+export const processBusStreamEvents = async (busEvents, queue ) => {
+  return kinesisStreamEventPromisifier( busEvents, processGlobalBusEvents, queue )
 }; // end processBusStreamEvents
 
-const processGlobalBusEvents = async ( event, queue, db ) => {
+const processGlobalBusEvents = async ( event, queue ) => {
   logger.info("GOT THE BUS EVENT : ", event );
 
   switch( event.data.type ) {
