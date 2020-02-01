@@ -76,10 +76,6 @@ custom:
     uat: us-east-1
     prod: ap-southeast-2
 functions:
-#  authorize:
-#    name: ${self:provider.stage}-${self:custom.grub}-authorize
-#    handler: src/sec/authorize.handler
-#    description: must use US spelling for authorize function.
   appendInstrumentSession:
     handler: src/handler.appendInstrumentSession
     name: ${self:provider.stage}-${self:custom.grub}-appendInstrumentSession
