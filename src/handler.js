@@ -14,7 +14,6 @@ const util = require( "./lib/util.server.library" );
 import {
   appendInstrument
 } from "./lib/vaultServer/vault.server.library"
-import { processBusStreamEvents } from "./lib/vaultServer/globalEventBus.handler.library";
 import { processServiceQueueMessages } from "./lib/vaultServer/serviceQueue.handler.library"
 import { processTableStreamEvents } from "./lib/vaultServer/serviceTableStream.handler.library"
 import {
@@ -26,11 +25,6 @@ import { unstring } from "./lib/awsHelpers/general.helper.library";
 const db = new AWS.DynamoDB.DocumentClient();
 const queue = new AWS.SQS();
 const stream = new AWS.Kinesis();
-
-///                                            ///
-///             EXPORTED FUNCTIONS             ///
-///                                            ///
-//////////////////////////////////////////////////
 
 /**
  * submit details to a current session. does not submit the session
@@ -107,25 +101,6 @@ export const serviceQueueHandler = async ( event ) => {
     throw err;
   }
 }; // end serviceQueueHandler
-
-///                                            ///
-///             SHARED BUS HANDLER             ///
-///                                            ///
-//////////////////////////////////////////////////
-
-export const sharedServiceBusEventHandler = async ( event ) => {
-  logger.info( "inside sharedServiceBusEventHandler : ", event );
-  const busEvents = [ ...event.Records ];
-  logger.info("extracted bus events : ", busEvents );
-
-  try {
-    const workerResponse = await processBusStreamEvents( busEvents, queue, db );
-    logger.info( "successfully processed bus records. worker response : ", workerResponse )
-  } catch( err ) {
-    logger.error( "error in sharedServiceBusEventHandler : ", err );
-    throw err;
-  }
-}; // end sharedServiceBusEventHandler
 
 ///                                            ///
 ///            TABLE STREAM HANDLERS           ///

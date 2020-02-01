@@ -106,7 +106,7 @@ functions:
           type: dynamodb
           enabled: true
   sharedServiceBusEventHandler:
-    handler: src/handler.sharedServiceBusEventHandler
+    handler: src/bus.handler.sharedServiceBusEventHandler
     name: ${self:provider.stage}-${self:custom.grub}-sharedServiceBusEventHandler
     description: process messages from the application's shared service bus
     events:
