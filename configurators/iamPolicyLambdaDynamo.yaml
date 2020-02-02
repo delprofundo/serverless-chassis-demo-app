@@ -16,6 +16,13 @@ Properties:   # add service specific name
         - dynamoDb:GetShardIterator
         - dynamoDb:ListStreams
       Resource:
-        - "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/*"]]
+        - "Fn::Join": ["",
+                       ["arn:aws:dynamodb:",
+                        {"Ref": "AWS::Region"},
+                        ":",
+                        {"Ref": "AWS::AccountId"},
+                        ":table/",
+                        {"Ref": "SERVICE_TABLE"}
+                       ]]
   Roles:
   - "Ref": "IamRoleLambdaExecution"
