@@ -67,7 +67,6 @@ const processTableInsertEvent = async ( record ) => {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
       const { cardholderName, encryptedCardData, ...recordToShare } = processRec;
-      logger.info( "Record to share : ", recordToShare );
       const dbResponse = await dynamoGet(
         recordToShare.instrumentId,
         RECORD_TYPES.INSTRUMENT_SESSION_INDEX,
@@ -76,16 +75,13 @@ const processTableInsertEvent = async ( record ) => {
       logger.info( "got the session : ", dbResponse );
       const sessionToken = dbResponse.Item.sessionToken;
       // TODO : SAGA HERE if no item begin te saga
-      logger.info("instrument session record");
       payloadRecord = { instrument: { ...recordToShare }, sessionToken };
-      logger.info( "record to share does it have instrumentId: ", payloadRecord );
       break;
     default:
       logger.info( `new record of type ${ recordType } not handled`);
       return;
   }
   try {
-    logger.info( "about to push this guy to the bus : ", payloadRecord );
     const busResponse = await publishToBus( payloadRecord, calculatedEventType, stream );
     logger.info ( "bus response : ", busResponse );
   } catch( err ) {
@@ -95,7 +91,6 @@ const processTableInsertEvent = async ( record ) => {
 }; // end processTableInsertEvent
 
 const publishToBus = async ( payload, eventType, stream ) => {
-  logger.info( "inside publishToBus", payload, eventType );
   const busResponse = await streamPublish(
     { ...payload },
     eventType,
