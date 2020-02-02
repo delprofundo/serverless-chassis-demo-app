@@ -8,7 +8,7 @@
 import { unstring } from "../lib/awsHelpers/general.helper.library";
 import { queueEventPromisifier } from "../lib/awsHelpers/queue.helper.library";
 import { vault_metadata } from "../schema/vault.schema";
-const { REQUEST_TYPES, RECORD_TYPES } = vault_metadata;
+const { REQUEST_TYPES } = vault_metadata;
 import {
   processAppendInstrumentSession,
   processNewInstrumentSession,

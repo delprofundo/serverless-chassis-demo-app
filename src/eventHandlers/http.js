@@ -23,22 +23,17 @@ import { unstring } from "../lib/awsHelpers/general.helper.library";
  * @returns {Promise<>}
  */
 export const appendInstrumentSession = async ( event ) => {
-  logger.info( "inside appendInstrumentSession : ", event );
   const instrumentAssembly = {
-    ...unstring(event.body),
+    ...unstring( event.body ),
     sessionToken: unstring( event.pathParameters ).sessionToken
   };
-  logger.info( "INSTRUMENT ASS : ", instrumentAssembly );
   try {
     const queueSubmissionResponse = await appendInstrument( instrumentAssembly );
-    logger.info( "successfully pushed request to queue : ", queueSubmissionResponse );
-    const res = RESifySuccess(
+    return RESifySuccess(
       undefined,
       302,
       {"Location": queueSubmissionResponse.redirect}
       );
-    logger.info( "RES : ", res );
-    return ( res );
   } catch( err ) {
     logger.error( "error in appendInstrumentSession : ", err );
     return RESifyErr( err );

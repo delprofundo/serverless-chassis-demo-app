@@ -30,7 +30,6 @@ export const tableStreamHandler = async ( event ) => {
   const tableUpdateAssembly = {
     incomingRecords: [ ...unstring( event.Records )]
   };
-  logger.info( "table update assembly : ", tableUpdateAssembly );
   try {
     const workerResponse = await processTableStreamEvents( tableUpdateAssembly, stream );
     logger.info( "successfully processed stream events :", workerResponse );
@@ -57,7 +56,6 @@ const processTableStreamEvent = async ( record, stream ) => {
 }; // end processTableStreamEvent
 
 const processTableInsertEvent = async ( record ) => {
-  logger.info( "inside processTableInsertEvent : ", record );
   const { newRec } = record;
   const { recordType, ...processRec } = deindexDynamoRecord( newRec );
   const calculatedEventType = calculateNewRecordEvent( recordType );
