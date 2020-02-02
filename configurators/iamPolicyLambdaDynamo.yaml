@@ -22,7 +22,7 @@ Properties:   # add service specific name
                         ":",
                         {"Ref": "AWS::AccountId"},
                         ":table/",
-                        {"Ref": "SERVICE_TABLE"}
+                        {Ref: ServiceTable}
                        ]]
   Roles:
   - "Ref": "IamRoleLambdaExecution"
