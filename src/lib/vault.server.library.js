@@ -24,8 +24,8 @@ const moment = require( 'moment' );
 import {
   validateInboundCreditCard,
 } from "../schema/creditCard.schema";
-import {encryptString, maskIdentifier} from "treasury-helpers";
-import {deindexDynamoRecord, dynamoGet, dynamoPut} from "./awsHelpers/dynamoCRUD.helper.library";
+import { encryptString, maskIdentifier } from "treasury-helpers";
+import { deindexDynamoRecord, dynamoGet, dynamoPut } from "./awsHelpers/dynamoCRUD.helper.library";
 import { queuePush } from "./awsHelpers/queue.helper.library";
 import { vault_metadata } from "../schema/vault.schema"
 const {

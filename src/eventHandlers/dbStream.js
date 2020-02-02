@@ -5,17 +5,19 @@
  * @module vault/streamHandler
  */
 
-const { DEPLOY_REGION, GLOBAL_SERVICE_BUS } = process.env;
+
+const { DEPLOY_REGION, GLOBAL_SERVICE_BUS, SERVICE_TABLE } = process.env;
 const logger = require("log-winston-aws-level");
 const AWSXRay = require("aws-xray-sdk-core");
 const AWS = AWSXRay.captureAWS(require("aws-sdk"));
 AWS.config.update({ region: DEPLOY_REGION });
+const db = new AWS.DynamoDB.DocumentClient();
 const stream = new AWS.Kinesis();
 
 import { vault_metadata } from "../schema/vault.schema";
 const { EVENT_TYPES, RECORD_TYPES } = vault_metadata;
 import { unstring } from "../lib/awsHelpers/general.helper.library";
-import { deindexDynamoRecord } from "../lib/awsHelpers/dynamoCRUD.helper.library";
+import {deindexDynamoRecord, dynamoGet} from "../lib/awsHelpers/dynamoCRUD.helper.library";
 import { generatePartitionKey, streamPublish } from "../lib/awsHelpers/kinesis.helper.library";
 import { streamEventPromisifier } from "../lib/awsHelpers/dynamoStream.helper.library";
 
@@ -65,7 +67,16 @@ const processTableInsertEvent = async ( record ) => {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
       const { cardholderName, encryptedCardData, ...recordToShare } = processRec;
-      payloadRecord = { ...recordToShare };
+      const dbResponse = await dynamoGet(
+        recordToShare.instrumentId,
+        RECORD_TYPES.INSTRUMENT_SESSION,
+        SERVICE_TABLE, db
+      );
+      logger.info( "got the session : ", dbResponse );
+      const instrumentSession = dbResponse.Item;
+      // TODO : SAGA HERE if no item begin te saga
+      logger.info("instrument session record");
+      payloadRecord = { instrument: { ...recordToShare }, sessionToken: instrumentSession.sessionTimeout };
       logger.info( "record to share does it have instrumentId: ", payloadRecord );
       break;
     default:
@@ -73,18 +84,24 @@ const processTableInsertEvent = async ( record ) => {
       return;
   }
   try {
-    const busResponse = await streamPublish(
-      { ...payloadRecord },
-      calculatedEventType,
-      generatePartitionKey(),
-      GLOBAL_SERVICE_BUS,
-      stream );
+    logger.info( "about to push this guy to the bus : ", payloadRecord );
+    const busResponse = await publishToBus( payloadRecord, calculatedEventType, stream );
     logger.info ( "bus response : ", busResponse );
   } catch( err ) {
     logger.error( "error pushing record to shared service bus", err );
     throw err;
   }
 }; // end processTableInsertEvent
+
+const publishToBus = async ( payload, eventType, stream ) => {
+  logger.info( "inside publishToBus", payload, eventType );
+  const busResponse = await streamPublish(
+    { ...payload },
+    eventType,
+    generatePartitionKey(),
+    GLOBAL_SERVICE_BUS,
+    stream );
+}; // end publishToBus
 
 const calculateNewRecordEvent = ( recordType ) => {
   if( recordType === RECORD_TYPES.TOKENIZED_INSTRUMENT ) {
