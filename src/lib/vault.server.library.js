@@ -86,27 +86,28 @@ export const appendInstrument = async( instrumentAssembly ) => {
 export const processNewInstrumentSession = async ( sessionRequest ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
   const { instrumentId, payerId, sessionToken, redirectUrl } = sessionRequest;
+  const recordExpiry = moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix();
   const record = {
-    instrumentId: instrumentId,
+    instrumentId, payerId, sessionToken, recordExpiry,
     recordType: RECORD_TYPES.INSTRUMENT_SESSION,
     sessionRedirectUrl: redirectUrl,
-    payerId: payerId,
-    sessionToken: sessionToken,
     hashKey: sessionToken,
-    rangeKey: RECORD_TYPES.INSTRUMENT_SESSION,
-    recordExpiry: moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix(),
+    rangeKey: RECORD_TYPES.INSTRUMENT_SESSION
   };
   try {
-    const putResponse = await dynamoPut( record, SERVICE_TABLE, db );
-    logger.info( "successfully put session to collection", putResponse );
+    await dynamoPut( record, SERVICE_TABLE, db );
+    logger.info( "successfully put session to collection" );
   } catch( err ) {
     logger.error( "error processing new instrument session" );
     throw err;
   }
   try {
-    const sessionIndexRecord = { hashKey: instrumentId, rangeKey: RECORD_TYPES.INSTRUMENT_SESSION_INDEX, sessionToken };
-    const indexPutResponse = await dynamoPut( sessionIndexRecord, SERVICE_TABLE, db );
-    logger.info( "index put response : ", indexPutResponse );
+    const sessionIndexRecord = {
+      hashKey: instrumentId,
+      rangeKey: RECORD_TYPES.INSTRUMENT_SESSION_INDEX,
+      sessionToken, recordExpiry };
+    await dynamoPut( sessionIndexRecord, SERVICE_TABLE, db );
+    logger.info( "index put response : " );
   } catch ( err ) {
     logger.error( "error putting session index record : ", err );
     throw err;
