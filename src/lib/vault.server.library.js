@@ -85,8 +85,7 @@ export const appendInstrument = async( instrumentAssembly ) => {
 
 export const processNewInstrumentSession = async ( sessionRequest ) => {
   logger.info( "inside processNewInstrumentSession ", sessionRequest );
-  const { instrumentId, payerId, sessionToken, redirectUrl } = sessionRequest;
-  const recordExpiry = moment().add( SESSION_VARIABLES.VAULT_EXPIRY_MINUTES, "minutes").unix();
+  const { instrumentId, payerId, sessionToken, redirectUrl, recordExpiry } = sessionRequest;
   const record = {
     instrumentId, payerId, sessionToken, recordExpiry,
     recordType: RECORD_TYPES.INSTRUMENT_SESSION,
