@@ -117,7 +117,7 @@ functions:
           enabled: true
   pingService:
     handler: src/eventHandlers/http.ping
-    name: ${self:provider.stage}-${self:custom.grub}-ping
+    name: ${self:provider.stage}-${self:custom.grub}-util-ping
     description: a simple payload ping GET test
     events:
     - http:
@@ -126,7 +126,7 @@ functions:
         cors: true
   echoService:
     handler: src/eventHandlers/http.echo
-    name: ${ self:provider.stage}-${self:custom.grub}-echo
+    name: ${ self:provider.stage}-${self:custom.grub}-util-echo
     description: a simple payload echo POST test
     events:
     - http:
