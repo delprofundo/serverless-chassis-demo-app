@@ -67,6 +67,7 @@ const processTableInsertEvent = async ( record ) => {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
       const { cardholderName, encryptedCardData, ...recordToShare } = processRec;
+      logger.info( "Record to share : ", recordToShare );
       const dbResponse = await dynamoGet(
         recordToShare.instrumentId,
         RECORD_TYPES.INSTRUMENT_SESSION,
