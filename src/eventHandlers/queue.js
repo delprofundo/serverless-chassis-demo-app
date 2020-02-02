@@ -4,7 +4,7 @@
  * bruno@hypermedia.tech
  * @module vault/queueHandler
  */
-
+const logger = require( "log-winston-aws-level" );
 import { unstring } from "../lib/awsHelpers/general.helper.library";
 import { queueEventPromisifier } from "../lib/awsHelpers/queue.helper.library";
 import { vault_metadata } from "../schema/vault.schema";
