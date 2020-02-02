@@ -70,14 +70,14 @@ const processTableInsertEvent = async ( record ) => {
       logger.info( "Record to share : ", recordToShare );
       const dbResponse = await dynamoGet(
         recordToShare.instrumentId,
-        RECORD_TYPES.INSTRUMENT_SESSION,
+        RECORD_TYPES.INSTRUMENT_SESSION_INDEX,
         SERVICE_TABLE, db
       );
       logger.info( "got the session : ", dbResponse );
-      const instrumentSession = dbResponse.Item;
+      const sessionToken = dbResponse.Item.sessionToken;
       // TODO : SAGA HERE if no item begin te saga
       logger.info("instrument session record");
-      payloadRecord = { instrument: { ...recordToShare }, sessionToken: instrumentSession.sessionTimeout };
+      payloadRecord = { instrument: { ...recordToShare }, sessionToken };
       logger.info( "record to share does it have instrumentId: ", payloadRecord );
       break;
     default:

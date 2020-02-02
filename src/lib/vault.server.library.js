@@ -103,6 +103,14 @@ export const processNewInstrumentSession = async ( sessionRequest ) => {
     logger.error( "error processing new instrument session" );
     throw err;
   }
+  try {
+    const sessionIndexRecord = { hashKey: instrumentId, rangeKey: RECORD_TYPES.INSTRUMENT_SESSION_INDEX, sessionToken };
+    const indexPutResponse = await dynamoPut( sessionIndexRecord, SERVICE_TABLE, db );
+    logger.info( "index put response : ", indexPutResponse );
+  } catch ( err ) {
+    logger.error( "error putting session index record : ", err );
+    throw err;
+  }
 }; // end processNewInstrumentSession
 
 export const processAppendInstrumentSession = async ( incomingInstrument ) => {
