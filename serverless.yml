@@ -71,8 +71,6 @@ custom:
   sharedServiceBus: ${self:custom.local.sharedServiceBus}
   sharedServiceBusARN: ${self:custom.local.sharedServiceBusARN}
   projectCode: ${self:custom.local.projectCode}
-  #honeycombAPIKey: ${self:custom.local.honeycombAPIKey}
-  #honeycombDataset: ${self:custom.local.honeycombDataset}
   profiles:
     dev: default
   regions:
