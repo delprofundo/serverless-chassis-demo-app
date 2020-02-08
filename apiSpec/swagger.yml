@@ -20,6 +20,8 @@ info:
     name: hypermedia tech product support
     email: support@hypermedia.tech
 tags:
+  - name: users
+    description: endpoints relating to user functionality.
   - name: vault session
     description: endpoints relating to session vault functionality.
   - name: vault instrument
@@ -137,6 +139,188 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SessionTokenResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /users:
+    get:
+      tags:
+        - users
+      summary: get a filterable collection of users
+      operationId: getUsers
+      responses:
+        200:
+          description: success requesting a collection of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+    post:
+      tags:
+        - users
+      summary: create a user record
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUserItem"
+      responses:
+        200:
+          description: |
+            success requesting user creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAsyncResponse'
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: get an individual user by id
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: success requesting user record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItem"
+        400:
+          description: |
+            unsuccessful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        401:
+          description: |
+            unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        403:
+          description: |
+            forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        404:
+          description: |
+            not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+    delete:
+      tags:
+        - users
+      summary: delete an individual user by id
+      operationId: deleteUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        202:
+          description: success requesting deletion of user record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItem"
         400:
           description: |
             unsuccessful
@@ -714,6 +898,30 @@ components:
       properties:
         sessionToken:
           type: string
+    NewUserItem:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 120
+    UserItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 3
+          maxLength: 120
+    UserList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserItem"
     VaultSessionRequest:
       type: object
       required:
