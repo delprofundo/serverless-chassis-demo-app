@@ -29,8 +29,12 @@ provider:
         - cognito-idp:Admin*
         - xray:PutTelemetryRecords
         - xray:PutTraceSegments
-        - sqs:SendMessage
       Resource: "*"
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource:
+        Fn::GetAtt: [ ServiceQueue, Arn ]
     - Effect: Allow
       Action:
         - kinesis:PutRecord
