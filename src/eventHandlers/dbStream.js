@@ -66,7 +66,7 @@ const processTableInsertEvent = async ( record ) => {
   switch( calculatedEventType ) {
     //TODO : handle SUBMITTED INSTRUMENT and SESSION REQUESTED (maybe)
     case EVENT_TYPES.INSTRUMENT_TOKENIZED:
-      const { cardholderName, encryptedCardData, ...recordToShare } = processRec;
+      const { encryptedCardData, ...recordToShare } = processRec;
       const dbResponse = await dynamoGet(
         recordToShare.instrumentId,
         RECORD_TYPES.INSTRUMENT_SESSION_INDEX,
