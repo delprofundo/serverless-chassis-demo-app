@@ -58,7 +58,7 @@ export const appendInstrument = async( instrumentAssembly ) => {
   }
 
   if( !session || session.recordExpiry <= moment().unix() ) {
-    logger.error( "capture session has expired" );
+    logger.error( "capture session has expird" );
     throw Error( `Error ${ ERROR_TYPES.SESSION_EXPIRED }` );
   }
   try {
