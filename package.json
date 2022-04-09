@@ -65,7 +65,7 @@
     "jwe-handler": "3.0.0",
     "log-winston-aws-level": "1.11.0",
     "luhn": "^2.4.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "randomstring": "^1.1.5",
     "request": "^2.88.2",
     "request-promise-native": "1.0.8",
